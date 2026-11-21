@@ -27,7 +27,7 @@ test.describe('口令与登录', () => {
 
   test('口令正确后出现身份选择', async ({ page }) => {
     await page.goto('/')
-    await page.getByLabel(/口令/).fill(PASSCODE)
+    await page.getByLabel('输入口令').fill(PASSCODE)
     await page.getByRole('button', { name: /进入/ }).click()
     await expect(page.getByRole('heading', { name: '选择你的身份' })).toBeVisible()
     await expect(page.getByRole('listbox', { name: '成员名单' })).toBeVisible()

@@ -1,15 +1,14 @@
 import { useMemo, useState } from 'preact/hooks'
 import { profileApi, followApi } from '../../lib/api'
-import type { FollowUser, ProfileDetail, ProfileSearchQuery } from '../../lib/types'
+import type { ProfileDetail, ProfileSearchQuery } from '../../lib/types'
 import { AppShell } from '../../components/AppShell'
-import { Avatar, Button, Chip, Notice, Skeleton, StateBlock } from '../../components/ui'
+import { Avatar, Button, Chip, Skeleton, StateBlock } from '../../components/ui'
 import { Icon } from '../../components/Icon'
 import { useAsync, describeError } from '../../lib/useAsync'
 import { showToast } from '../../lib/toast'
 import { genderLabel } from '../../lib/format'
 import { navigate } from '../../lib/router'
 import { currentUser } from '../../lib/session'
-import { cn } from '../../lib/cn'
 import styles from './plaza.module.css'
 
 const FILTERS: Array<{ key: ProfileSearchQuery['filter']; label: string }> = [

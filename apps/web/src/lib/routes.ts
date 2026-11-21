@@ -7,7 +7,7 @@ export interface RouteMatch {
 
 export function matchRoute(pathname: string): RouteMatch {
   const segments = segmentsOf(pathname)
-  const [first, second, third] = segments
+  const [first, second] = segments
 
   if (!first) return { name: 'classroom', params: {} }
 

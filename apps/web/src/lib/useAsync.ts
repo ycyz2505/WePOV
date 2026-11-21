@@ -51,7 +51,6 @@ export function useAsync<T>(
     return () => {
       cancelled = true
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [...deps, nonce, options.skip])
 
   const reload = useCallback(() => setNonce((value) => value + 1), [])

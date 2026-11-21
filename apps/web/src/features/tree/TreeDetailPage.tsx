@@ -9,7 +9,6 @@ import { showToast } from '../../lib/toast'
 import { formatRelative } from '../../lib/format'
 import { navigate } from '../../lib/router'
 import { isSuperAdmin } from '../../lib/session'
-import { cn } from '../../lib/cn'
 import { PostCard, ReportModal } from './PostCard'
 import styles from './tree.module.css'
 

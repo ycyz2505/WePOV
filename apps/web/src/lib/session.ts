@@ -1,5 +1,12 @@
 import { signal, computed } from '@preact/signals'
-import type { Notification, SessionInfo, SessionMode, SessionUser } from './types'
+import type {
+  AppVersionPolicy,
+  Notification,
+  Permission,
+  SessionInfo,
+  SessionMode,
+  SessionUser,
+} from './types'
 import { ApiError, authApi, configureApi, gatewayApi } from './api'
 import { getDeviceId, getDeviceName } from './device'
 
@@ -59,14 +66,14 @@ export const unreadCount = signal<number>(0)
 export const liveNotifications = signal<Notification[]>([])
 
 let unauthorizedHandler: (() => void) | null = null
-let versionGateHandler: ((policy: import('./types').AppVersionPolicy | null) => void) | null = null
+let versionGateHandler: ((policy: AppVersionPolicy | null) => void) | null = null
 
 export function registerUnauthorized(handler: () => void): void {
   unauthorizedHandler = handler
 }
 
 export function registerVersionGate(
-  handler: (policy: import('./types').AppVersionPolicy | null) => void,
+  handler: (policy: AppVersionPolicy | null) => void,
 ): void {
   versionGateHandler = handler
 }
@@ -200,7 +207,7 @@ export async function setIdleTimeout(minutes: number): Promise<void> {
   idleTimeoutMinutes.value = result.idleTimeoutMinutes
 }
 
-export function hasPermission(permission: import('./types').Permission): boolean {
+export function hasPermission(permission: Permission): boolean {
   return currentUser.value?.permissions.includes(permission) ?? false
 }
 
