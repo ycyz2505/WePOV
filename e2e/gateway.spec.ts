@@ -29,7 +29,8 @@ test.describe('口令与登录', () => {
     await page.goto('/')
     await page.getByLabel(/口令/).fill(PASSCODE)
     await page.getByRole('button', { name: /进入/ }).click()
-    await expect(page.getByRole('dialog')).toBeVisible()
+    await expect(page.getByRole('heading', { name: '选择你的身份' })).toBeVisible()
+    await expect(page.getByRole('listbox', { name: '成员名单' })).toBeVisible()
   })
 })
 

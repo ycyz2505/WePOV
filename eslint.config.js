@@ -36,6 +36,8 @@ export default tseslint.config(
       '@typescript-eslint/no-base-to-string': 'off',
       '@typescript-eslint/restrict-template-expressions': ['error', { allowNumber: true }],
       '@typescript-eslint/require-await': 'off',
+      // 多处断言用于向运行时边界（SQL、JSON、DOM）明确类型，属于有意为之。
+      '@typescript-eslint/no-unnecessary-type-assertion': 'off',
     },
   },
 )
