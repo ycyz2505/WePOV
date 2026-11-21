@@ -15,7 +15,7 @@ permissions:
   packages: write
 
 env:
-  IMAGE: ghcr.io/${{ github.repository }}/wepov
+  IMAGE: ghcr.io/${{ github.repository_owner }}/wepov
 
 jobs:
   image:
@@ -55,3 +55,14 @@ jobs:
           labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+
+      # Altare 以匿名方式拉取镜像，因此包必须公开。GITHUB_TOKEN 对关联到
+      # 本仓库的包有 packages:write 权限，可以直接改可见性。
+      - name: 公开镜像包
+        if: github.ref_name == github.event.repository.default_branch
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh api -X PATCH "user/packages/container/wepov" -f visibility=public >/dev/null \
+            && echo "镜像包已设为公开" \
+            || echo "::warning::镜像包可见性设置失败，可稍后在 GitHub 包设置中手动公开"
