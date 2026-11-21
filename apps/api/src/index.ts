@@ -35,8 +35,7 @@ import { capsuleRoutes } from './routes/capsules.js'
 import { classroomRoutes } from './routes/classroom.js'
 import { bossRoutes } from './routes/boss.js'
 import { notificationRoutes } from './routes/notifications.js'
-import { eventRoutes } from './routes/events.js'
-import { reportRoutes } from './routes/reports.js'
+import { eventsRoutes } from './routes/events.js'import { reportRoutes } from './routes/reports.js'
 import { adminRoutes } from './routes/admin.js'
 
 /**
@@ -89,7 +88,7 @@ function buildApp(): FastifyInstance {
   const app = Fastify({
     logger: { level: config.logLevel },
     bodyLimit: config.bodyLimitBytes,
-    trustProxy: config.trustedProxyHops > 0 ? config.trustedProxyHops : false,
+    trustProxy: config.trustedProxyHops > 0,
     disableRequestLogging: true,
   })
 
@@ -190,7 +189,7 @@ async function main(): Promise<void> {
   await app.register(classroomRoutes)
   await app.register(bossRoutes)
   await app.register(notificationRoutes)
-  await app.register(eventRoutes)
+  await app.register(eventsRoutes)
   await app.register(reportRoutes)
   await app.register(adminRoutes)
 

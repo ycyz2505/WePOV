@@ -1,4 +1,4 @@
-import { Algorithm, hash as argonHash, verify as argonVerify } from '@node-rs/argon2'
+import { hash as argonHash, verify as argonVerify, type Options } from '@node-rs/argon2'
 import { hmacHex, safeEqualHex } from './hmac.js'
 import { CountingSemaphore } from './concurrency.js'
 
@@ -12,13 +12,19 @@ import { CountingSemaphore } from './concurrency.js'
  * verified with Argon2id — exactly one expensive hash per attempt.
  */
 
-/** Argon2id parameters fixed by the design: m=19 MiB, t=2, p=1. */
-export const ARGON2_OPTIONS = {
-  algorithm: Algorithm.Argon2id,
+/**
+ * Argon2id parameters fixed by the design: m=19 MiB, t=2, p=1.
+ *
+ * `algorithm: 2` is Argon2id. We intentionally do not reference the
+ * `Algorithm` const enum: ambient const enums have no runtime value, so a value
+ * import would break under transpile-only builders (tsx/esbuild).
+ */
+export const ARGON2_OPTIONS: Options = {
+  algorithm: 2 as Options['algorithm'],
   memoryCost: 19 * 1024, // KiB => 19 MiB
   timeCost: 2,
   parallelism: 1,
-} as const
+}
 
 /** At most 2 concurrent Argon2 operations across the process. */
 export const argonGate = new CountingSemaphore(2)

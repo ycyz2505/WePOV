@@ -10,10 +10,10 @@
  */
 
 export interface AuditQuery {
-  query<T = Record<string, unknown>>(
+  query(
     sql: string,
     params?: unknown[],
-  ): Promise<{ rows: T[]; rowCount: number | null }>
+  ): Promise<{ rows: Array<Record<string, unknown>>; rowCount: number | null }>
 }
 
 export interface AuditEntry {
@@ -46,7 +46,7 @@ export async function writeAudit(tx: AuditQuery, entry: AuditEntry): Promise<str
   if (!entry.action || entry.action.length > 80) {
     throw new AuditError('Invalid audit action')
   }
-  const result = await tx.query<{ id: string }>(
+  const result = await tx.query(
     `INSERT INTO audit_events
        (class_id, actor_id, actor_role, action, target_type, target_id,
         before_state, after_state, session_id, request_id, ip_hmac)
@@ -66,8 +66,8 @@ export async function writeAudit(tx: AuditQuery, entry: AuditEntry): Promise<str
       entry.ipHmac ?? null,
     ],
   )
-  const id = result.rows[0]?.id
-  if (!id) {
+  const id = result.rows[0]?.['id']
+  if (typeof id !== 'string') {
     throw new AuditError('Audit insert returned no id')
   }
   return id

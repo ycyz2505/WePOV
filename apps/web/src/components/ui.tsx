@@ -1,4 +1,4 @@
-import type { JSX } from 'preact'
+import type { ComponentChildren, JSX } from 'preact'
 import { useId } from 'preact/hooks'
 import { Icon, type IconName } from './Icon'
 import { avatarGradient, initialOf } from '../lib/format'
@@ -44,7 +44,7 @@ export function Button({
         size === 'sm' && ui.btnSm,
         block && ui.btnBlock,
         iconOnly && ui.btnIcon,
-        className,
+        className as string | undefined,
       )}
       disabled={disabled || loading}
       aria-busy={loading ? 'true' : undefined}
@@ -60,8 +60,8 @@ interface FieldProps {
   hint?: string
   error?: string
   htmlFor?: string
-  required?: boolean
-  children: JSX.Element
+  required?: JSX.InputHTMLAttributes<HTMLInputElement>['required']
+  children: ComponentChildren
   counter?: { value: number; max: number }
 }
 
@@ -180,7 +180,7 @@ export function Badge({
   children,
 }: {
   tone?: 'default' | 'accent' | 'sunset' | 'danger' | 'success'
-  children: JSX.Element | string
+  children: ComponentChildren
 }): JSX.Element {
   const toneClass = {
     default: '',
@@ -227,7 +227,7 @@ interface StateBlockProps {
   icon?: IconName
   title: string
   body?: string
-  children?: JSX.Element | JSX.Element[]
+  children?: ComponentChildren
   tone?: 'neutral' | 'danger'
 }
 
@@ -247,7 +247,7 @@ export function StateBlock({ icon = 'info', title, body, children, tone = 'neutr
 interface NoticeProps {
   tone?: 'default' | 'info' | 'warn' | 'danger' | 'success'
   icon?: IconName
-  children: JSX.Element | JSX.Element[] | string
+  children: ComponentChildren
 }
 
 export function Notice({ tone = 'default', icon, children }: NoticeProps): JSX.Element {
@@ -276,7 +276,7 @@ export function SectionHeader({
 }: {
   title: string
   subtitle?: string
-  action?: JSX.Element
+  action?: ComponentChildren
 }): JSX.Element {
   return (
     <div class={ui.sectionHead}>
@@ -297,7 +297,7 @@ export function Chip({
 }: {
   active?: boolean
   onClick?: () => void
-  children: JSX.Element | string
+  children: ComponentChildren
 } & Omit<JSX.ButtonHTMLAttributes<HTMLButtonElement>, 'onClick'>): JSX.Element {
   return (
     <button

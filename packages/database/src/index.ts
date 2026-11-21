@@ -8,6 +8,7 @@ export {
   type Tx,
   type QueryParam,
   type PoolOptions,
+  type pg,
 } from './pool.js'
 
 export {

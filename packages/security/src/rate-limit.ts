@@ -65,7 +65,9 @@ function take(bucket: Bucket, now: number): { ok: boolean; retryAfterMs: number 
 }
 
 interface TierState {
-  windows: Record<'per100ms' | 'per1s' | 'per60s', Bucket>
+  per100ms: Bucket
+  per1s: Bucket
+  per60s: Bucket
 }
 
 export interface RateDecision {
@@ -98,21 +100,19 @@ export class RateLimiter {
 
   #stateFor(key: string, tier: TierName, now: number): TierState {
     const mapKey = `${tier}:${key}`
-    let entry = this.#buckets.get(mapKey)
-    if (!entry) {
-      const limits = this.#limits[tier]
-      entry = {
-        state: {
-          per100ms: makeBucket(limits.per100ms, 100, now),
-          per1s: makeBucket(limits.per1s, 1000, now),
-          per60s: makeBucket(limits.per60s, 60_000, now),
-        },
-        lastSeen: now,
-      }
-      this.#buckets.set(mapKey, entry)
+    const existing = this.#buckets.get(mapKey)
+    if (existing) {
+      existing.lastSeen = now
+      return existing.state
     }
-    entry.lastSeen = now
-    return entry.state
+    const limits = this.#limits[tier]
+    const state: TierState = {
+      per100ms: makeBucket(limits.per100ms, 100, now),
+      per1s: makeBucket(limits.per1s, 1000, now),
+      per60s: makeBucket(limits.per60s, 60_000, now),
+    }
+    this.#buckets.set(mapKey, { state, lastSeen: now })
+    return state
   }
 
   /** Check (and consume) one unit for `key` in `tier`. */

@@ -23,23 +23,24 @@ jobs:
       ALTARE_TOKEN: ${{ secrets.ALTR_TOKEN }}
       APP: ${{ vars.ALTR_APP_NAME }}
     steps:
-      - name: 检查配置
+      - id: check
+        name: 检查配置
         run: |
-          if [ -z "${ALTARE_TOKEN:-}" ]; then
-            echo "缺少 Secrets.ALTR_TOKEN（由 altr token 生成）" >&2
-            exit 1
-          fi
-          if [ -z "${APP:-}" ]; then
-            echo "缺少 Variables.ALTR_APP_NAME" >&2
-            exit 1
+          if [ -z "${ALTARE_TOKEN:-}" ] || [ -z "${APP:-}" ]; then
+            echo "::notice::未配置 Secrets.ALTR_TOKEN 或 Variables.ALTR_APP_NAME，跳过自动部署。"
+            echo "configured=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "configured=true" >> "$GITHUB_OUTPUT"
           fi
 
       - name: 安装 Altare CLI
+        if: steps.check.outputs.configured == 'true'
         run: |
           curl -fsSL https://altare.gg/install.sh | sh
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
 
       - name: 创建或更新应用
+        if: steps.check.outputs.configured == 'true'
         run: |
           IMAGE="ghcr.io/${GITHUB_REPOSITORY}/wepov:latest"
           IMAGE=$(echo "$IMAGE" | tr '[:upper:]' '[:lower:]')

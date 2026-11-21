@@ -1,5 +1,10 @@
 apply plugin: 'com.android.application'
 
+// Groovy parses `versionCode (expr).toInteger()` as `versionCode(expr).toInteger()`,
+// which fails with "Value is null". Resolve the values before the DSL block.
+def wepovVersionCode = (System.getenv("WEPOV_VERSION_CODE") ?: "1").toInteger()
+def wepovVersionName = System.getenv("WEPOV_VERSION_NAME") ?: "0.1.0"
+
 android {
     namespace "app.wepov.client"
     compileSdk rootProject.ext.compileSdkVersion
@@ -8,8 +13,8 @@ android {
         applicationId "app.wepov.client"
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
-        versionCode (System.getenv("WEPOV_VERSION_CODE") ?: "1").toInteger()
-        versionName (System.getenv("WEPOV_VERSION_NAME") ?: "0.1.0")
+        versionCode wepovVersionCode
+        versionName wepovVersionName
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         aaptOptions {
             ignoreAssetsPattern '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'

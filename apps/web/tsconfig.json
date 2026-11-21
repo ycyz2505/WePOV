@@ -9,7 +9,10 @@
     "types": ["vite/client"],
     "noEmit": true,
     "declaration": false,
-    "sourceMap": false
+    "sourceMap": false,
+    "noPropertyAccessFromIndexSignature": false,
+    "noUncheckedIndexedAccess": false,
+    "exactOptionalPropertyTypes": false
   },
   "include": ["src", "vite.config.ts"]
 }

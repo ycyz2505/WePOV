@@ -1,5 +1,5 @@
 import type { FastifyInstance, FastifyPluginAsync } from 'fastify'
-import { getPool } from '@wepov/database'
+import { getPool, type pg } from '@wepov/database'
 import { ApiError, validationError } from '../errors.js'
 import { encouragementSchema, focusStartSchema, giftSchema, presenceSchema } from '../schemas.js'
 import { avatarUrl } from '../lib/urls.js'
@@ -79,7 +79,7 @@ function parseSeatDefinitions(value: unknown): SeatDefinition[] {
 }
 
 async function awardFocusPoint(
-  client: Awaited<ReturnType<ReturnType<typeof getPool>['connect']>>,
+  client: pg.PoolClient,
   focus: Pick<FocusRow, 'id' | 'user_id' | 'class_id'>,
 ): Promise<void> {
   const seasonResult = await client.query<{

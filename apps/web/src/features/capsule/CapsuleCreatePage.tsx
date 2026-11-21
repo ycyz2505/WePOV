@@ -41,7 +41,7 @@ export function CapsuleCreatePage(): preact.JSX.Element {
     void (async () => {
       try {
         const me = await profileApi.me()
-        const page = await profileApi.following(me.id)
+        const page = await profileApi.following(me.userId)
         setFollowers(page.items)
       } catch {
         setFollowers([])
