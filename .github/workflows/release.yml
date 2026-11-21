@@ -1,0 +1,176 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+    inputs:
+      version:
+        description: '版本号，例如 0.2.0（不含 v）'
+        required: true
+        type: string
+      min_supported:
+        description: '最低可用 versionCode（留空则读取 version-policy.json）'
+        required: false
+        type: string
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+env:
+  NODE_VERSION: '22.11.0'
+  NPM_CONFIG_FUND: 'false'
+  NPM_CONFIG_AUDIT: 'false'
+
+jobs:
+  build:
+    name: 构建发布产物
+    runs-on: ubuntu-24.04
+    outputs:
+      version: ${{ steps.meta.outputs.version }}
+      version_code: ${{ steps.meta.outputs.version_code }}
+      min_supported: ${{ steps.meta.outputs.min_supported }}
+      tag: ${{ steps.meta.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - id: meta
+        name: 计算版本
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            VERSION="${{ inputs.version }}"
+          else
+            VERSION="${GITHUB_REF_NAME#v}"
+          fi
+          POLICY=$(node -e "const p=require('./apps/android/version-policy.json');console.log(p.minSupportedVersionCode)")
+          MIN="${{ inputs.min_supported }}"
+          if [ -z "$MIN" ]; then MIN="$POLICY"; fi
+          CODE=$(node -e "const v=process.argv[1].split('.').map(Number);console.log(v[0]*10000+v[1]*100+v[2])" "$VERSION")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "version_code=$CODE" >> "$GITHUB_OUTPUT"
+          echo "min_supported=$MIN" >> "$GITHUB_OUTPUT"
+          echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.11.1'
+
+      - name: 安装依赖
+        run: npm ci
+
+      - name: 类型检查与测试
+        run: |
+          npm run typecheck
+          npm run lint
+          npm test
+
+      - name: 构建 Web 与 API
+        run: npm run build
+
+      - name: 打包服务器产物
+        run: node scripts/package-server.mjs
+
+      - name: 还原签名密钥
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          if [ -z "$KEYSTORE_BASE64" ]; then
+            echo "缺少 ANDROID_KEYSTORE_BASE64，无法生成签名发布包" >&2
+            exit 1
+          fi
+          echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/wepov-release.jks"
+          echo "WEPOV_KEYSTORE_PATH=$RUNNER_TEMP/wepov-release.jks" >> "$GITHUB_ENV"
+
+      - name: 同步 Capacitor
+        run: npx cap sync android
+        working-directory: apps/android
+
+      - name: 构建签名 APK
+        working-directory: apps/android/android
+        env:
+          WEPOV_VERSION_CODE: ${{ steps.meta.outputs.version_code }}
+          WEPOV_VERSION_NAME: ${{ steps.meta.outputs.version }}
+          WEPOV_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          WEPOV_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+          WEPOV_STORE_PASSWORD: ${{ secrets.ANDROID_STORE_PASSWORD }}
+        run: gradle assembleRelease --no-daemon
+
+      - name: 整理产物
+        env:
+          VERSION: ${{ steps.meta.outputs.version }}
+        run: |
+          mkdir -p release
+          cp apps/android/android/app/build/outputs/apk/release/app-release.apk "release/wepov-android-${VERSION}.apk"
+          ls -la release
+
+      - name: 生成清单、校验值与 SBOM
+        env:
+          VERSION: ${{ steps.meta.outputs.version }}
+          VERSION_CODE: ${{ steps.meta.outputs.version_code }}
+          MIN_SUPPORTED: ${{ steps.meta.outputs.min_supported }}
+          REPO: ${{ github.repository }}
+          TAG: ${{ steps.meta.outputs.tag }}
+        run: node scripts/make-release.mjs
+
+      - name: 上传产物
+        uses: actions/upload-artifact@v4
+        with:
+          name: release-assets
+          path: release/*
+          retention-days: 7
+
+  publish:
+    name: 发布 GitHub Release
+    runs-on: ubuntu-24.04
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: release-assets
+          path: release
+
+      - name: 创建 Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ needs.build.outputs.tag }}
+          VERSION: ${{ needs.build.outputs.version }}
+        run: |
+          NOTES_FILE=release/release-notes.md
+          if [ ! -f "$NOTES_FILE" ]; then
+            echo "第一人称 $VERSION" > "$NOTES_FILE"
+          fi
+          gh release create "$TAG" release/*.apk release/*.zip release/SHA256SUMS.txt release/sbom.spdx.json release/update-manifest.json \
+            --title "第一人称 $VERSION" \
+            --notes-file "$NOTES_FILE" \
+            --latest
+          echo "Release $TAG 已发布"
+
+      - name: 更新 latest 分支的版本清单
+        env:
+          TAG: ${{ needs.build.outputs.tag }}
+        run: |
+          cp release/update-manifest.json update-manifest.json
+          git config user.name "wepov-release-bot"
+          git config user.email "release-bot@users.noreply.github.com"
+          git checkout -B latest
+          git add update-manifest.json
+          git commit -m "chore(release): 更新版本清单至 $TAG" || echo "清单无变化"
+          git push --force origin latest

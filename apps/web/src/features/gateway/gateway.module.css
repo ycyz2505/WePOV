@@ -1,0 +1,249 @@
+.gate {
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-6) var(--space-4);
+  background: var(--paper);
+}
+
+.gateInner {
+  width: 100%;
+  max-width: 380px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.passcodeForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.passcodeInput {
+  width: 100%;
+  height: 52px;
+  padding: 0 var(--space-4);
+  font-size: 20px;
+  letter-spacing: 0.4em;
+  text-align: center;
+  font-family: var(--font-latin);
+  border: 1px solid var(--desk);
+  border-radius: var(--radius-md);
+  background: var(--paper-raised);
+  color: var(--ink);
+}
+
+.passcodeInput:focus-visible {
+  border-color: var(--uniform-blue);
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+.rememberRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 13.5px;
+  color: var(--ink-muted);
+}
+
+/* Identity picker */
+.picker {
+  min-height: 100dvh;
+  padding: var(--space-6) var(--space-4) calc(var(--space-7) + env(safe-area-inset-bottom, 0px));
+  background: var(--paper);
+}
+
+.pickerInner {
+  max-width: 640px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.pickerHead {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.pickerTitle {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.pickerSub {
+  font-size: 13.5px;
+  color: var(--ink-muted);
+}
+
+.searchRow {
+  position: relative;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--ink-muted);
+  pointer-events: none;
+}
+
+.searchInput {
+  width: 100%;
+  height: 44px;
+  padding: 0 12px 0 40px;
+  border: 1px solid var(--desk);
+  border-radius: var(--radius-md);
+  background: var(--paper-raised);
+  font-size: 15px;
+}
+
+.searchInput:focus-visible {
+  border-color: var(--uniform-blue);
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+.memberList {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--desk);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--paper-raised);
+  max-height: 52vh;
+  overflow-y: auto;
+}
+
+.memberRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: 10px var(--space-4);
+  text-align: left;
+  border-bottom: 1px solid var(--desk-soft);
+  transition: background-color 0.1s ease;
+}
+
+.memberRow:last-child {
+  border-bottom: none;
+}
+
+.memberRow:hover {
+  background: var(--desk-soft);
+}
+
+.memberRow[aria-selected='true'] {
+  background: color-mix(in srgb, var(--uniform-blue) 9%, transparent);
+}
+
+.memberMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.memberName {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.memberReal {
+  font-size: 12.5px;
+  color: var(--ink-muted);
+}
+
+.memberInitials {
+  margin-left: auto;
+  font-family: var(--font-latin);
+  font-size: 12px;
+  color: var(--ink-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.emptyHint {
+  padding: var(--space-5);
+  text-align: center;
+  font-size: 13.5px;
+  color: var(--ink-muted);
+}
+
+/* Login step */
+.loginStep {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.selectedCard {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--desk);
+  border-radius: var(--radius-md);
+  background: var(--paper-raised);
+}
+
+.modeGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.modeOption {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--desk);
+  border-radius: var(--radius-md);
+  background: var(--paper-raised);
+  cursor: pointer;
+}
+
+.modeOption[data-active='true'] {
+  border-color: var(--uniform-blue);
+  background: color-mix(in srgb, var(--uniform-blue) 6%, transparent);
+}
+
+.modeOption input {
+  margin-top: 3px;
+  accent-color: var(--uniform-blue);
+}
+
+.modeText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.modeTitle {
+  font-size: 14.5px;
+  font-weight: 600;
+}
+
+.modeDesc {
+  font-size: 12.5px;
+  color: var(--ink-muted);
+  line-height: 1.5;
+}
+
+.tempWarning {
+  margin-top: 2px;
+}
+
+.backRow {
+  display: flex;
+  align-items: center;
+}

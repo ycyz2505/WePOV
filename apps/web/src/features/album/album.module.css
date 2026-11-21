@@ -1,0 +1,406 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.headRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.headTitle {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+  font-size: 13.5px;
+  color: var(--ink-muted);
+}
+
+.crumb {
+  background: none;
+  border: none;
+  color: var(--ink-muted);
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
+
+.crumb:hover {
+  color: var(--uniform-blue);
+}
+
+.crumbCurrent {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.crumbSep {
+  color: var(--desk-strong, var(--desk));
+}
+
+/* Storage meter */
+.storageMeter {
+  border: 1px solid var(--desk);
+  border-radius: var(--radius-md);
+  background: var(--paper-raised);
+  padding: var(--space-3) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.storageTop {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.storageLabel {
+  font-size: 13px;
+  color: var(--ink-muted);
+}
+
+.storageValue {
+  font-family: var(--font-latin);
+  font-size: 13px;
+  color: var(--ink);
+}
+
+.meterTrack {
+  height: 8px;
+  border-radius: 4px;
+  background: var(--desk);
+  overflow: hidden;
+}
+
+.meterFill {
+  height: 100%;
+  background: var(--uniform-blue);
+  transition: width 0.2s ease;
+}
+
+.meterWarn {
+  background: var(--sunset);
+}
+
+.meterDanger {
+  background: var(--annotation);
+}
+
+.storageBreakdown {
+  display: flex;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  font-size: 12px;
+  color: var(--ink-muted);
+}
+
+/* Folder grid */
+.folderGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: var(--space-3);
+}
+
+.folderCard {
+  border: 1px solid var(--desk);
+  border-radius: var(--radius-md);
+  background: var(--paper-raised);
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  cursor: pointer;
+  text-align: left;
+  align-items: flex-start;
+}
+
+.folderCard:hover {
+  border-color: var(--uniform-blue);
+}
+
+.folderIcon {
+  color: var(--uniform-blue);
+}
+
+.folderName {
+  font-weight: 600;
+  font-size: 14px;
+  word-break: break-word;
+}
+
+.folderMeta {
+  font-size: 12px;
+  color: var(--ink-muted);
+}
+
+.pendingTag {
+  font-size: 11px;
+  color: color-mix(in srgb, var(--sunset) 70%, var(--ink));
+}
+
+/* Media grid */
+.mediaGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: var(--space-3);
+}
+
+.mediaTile {
+  position: relative;
+  border: 1px solid var(--desk);
+  border-radius: var(--radius-md);
+  background: var(--paper-raised);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.thumb {
+  aspect-ratio: 1;
+  background: var(--desk-soft);
+  width: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.thumbPlaceholder {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink-muted);
+  background: var(--desk-soft);
+}
+
+.mediaInfo {
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mediaName {
+  font-size: 12.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mediaMeta {
+  font-size: 11px;
+  color: var(--ink-muted);
+  font-family: var(--font-latin);
+}
+
+.mediaActions {
+  display: flex;
+  gap: 4px;
+  padding: 0 10px 8px;
+  flex-wrap: wrap;
+}
+
+.tileBadge {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+}
+
+/* Upload panel */
+.uploadPanel {
+  border: 1px solid var(--desk);
+  border-radius: var(--radius-md);
+  background: var(--paper-raised);
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.dropzone {
+  border: 1.5px dashed var(--desk);
+  border-radius: var(--radius-md);
+  padding: var(--space-5);
+  text-align: center;
+  cursor: pointer;
+  color: var(--ink-muted);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.dropzone:hover {
+  border-color: var(--uniform-blue);
+  color: var(--uniform-blue);
+}
+
+.tierChoices {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tierOption {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-2);
+  padding: 10px;
+  border: 1px solid var(--desk);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.tierOption[data-active='true'] {
+  border-color: var(--uniform-blue);
+  background: color-mix(in srgb, var(--uniform-blue) 5%, transparent);
+}
+
+.tierTitle {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.tierDesc {
+  font-size: 12.5px;
+  color: var(--ink-muted);
+}
+
+.tierEstimate {
+  font-family: var(--font-latin);
+  font-size: 12.5px;
+  color: var(--uniform-blue);
+  margin-top: 2px;
+}
+
+.uploadList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.uploadRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 8px 10px;
+  border: 1px solid var(--desk);
+  border-radius: var(--radius-sm);
+  font-size: 13px;
+}
+
+.uploadRowName {
+  flex: 1;
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.uploadState {
+  font-size: 12px;
+  color: var(--ink-muted);
+}
+
+.progressTrack {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--desk);
+  overflow: hidden;
+  width: 100px;
+}
+
+.progressFill {
+  height: 100%;
+  background: var(--uniform-blue);
+}
+
+.warningBox {
+  border: 1px solid color-mix(in srgb, var(--sunset) 40%, var(--desk));
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--sunset) 8%, transparent);
+  padding: var(--space-3);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.warningTitle {
+  font-weight: 700;
+  color: color-mix(in srgb, var(--sunset) 70%, var(--ink));
+}
+
+.formRow {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.back {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  color: var(--ink-muted);
+  cursor: pointer;
+  font-size: 13px;
+  padding: 2px;
+  align-self: flex-start;
+}
+
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  background: rgb(16 20 22 / 0.4);
+}
+
+.modal {
+  width: 100%;
+  max-width: 440px;
+  background: var(--paper-raised);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  box-shadow: var(--shadow);
+  max-height: 88vh;
+  overflow-y: auto;
+}
+
+.modalTitle {
+  font-size: 17px;
+  font-weight: 700;
+}
+
+@media (max-width: 560px) {
+  .mediaGrid,
+  .folderGrid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  }
+}

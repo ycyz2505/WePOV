@@ -1,0 +1,100 @@
+/* Root route wrapper: a keyed node per path so the enter animation re-runs on navigation. */
+.route {
+  display: block;
+}
+
+/* Boot splash while gateway/session state is being resolved. */
+.splash {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  background: var(--paper);
+}
+
+.splashFrame {
+  width: 100%;
+  max-width: 360px;
+}
+
+.splashInner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-6) var(--space-4);
+}
+
+.splashMark {
+  font-family: var(--font-latin);
+  font-weight: 700;
+  font-size: 20px;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+}
+
+.splashNote {
+  font-size: 13px;
+  color: var(--ink-muted);
+}
+
+/* Web-side 426 version gate overlay (mirrors the Android UpdateGate). */
+.versionOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 210;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  background: var(--paper);
+}
+
+.versionPanel {
+  width: 100%;
+  max-width: 440px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.versionMark {
+  font-family: var(--font-latin);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  font-size: 15px;
+  color: var(--ink-muted);
+}
+
+.versionTitle {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.versionBody {
+  font-size: 14px;
+  line-height: 1.65;
+  color: var(--ink);
+}
+
+.versionNotes {
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--ink-muted);
+  white-space: pre-wrap;
+  padding: var(--space-3);
+  border: 1px solid var(--desk);
+  border-radius: var(--radius-sm);
+  background: var(--paper-raised);
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.versionFoot {
+  font-size: 12.5px;
+  color: var(--ink-muted);
+  text-align: center;
+}

@@ -1,0 +1,469 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.headRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+}
+
+.headTitle {
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.tabs {
+  display: flex;
+  gap: var(--space-1);
+  border-bottom: 1px solid var(--desk);
+  overflow-x: auto;
+}
+
+.tab {
+  padding: 10px 12px;
+  font-size: 14px;
+  color: var(--ink-muted);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  white-space: nowrap;
+  background: none;
+  cursor: pointer;
+}
+
+.tabActive {
+  color: var(--ink);
+  border-bottom-color: var(--uniform-blue);
+  font-weight: 600;
+}
+
+/* Post list */
+.postList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.postCard {
+  border: 1px solid var(--desk);
+  border-radius: var(--radius-md);
+  background: var(--paper-raised);
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.postHead {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 12.5px;
+  color: var(--ink-muted);
+}
+
+.alias {
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.opTag {
+  font-size: 10.5px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--uniform-blue) 12%, transparent);
+  color: var(--uniform-blue);
+}
+
+.postTime {
+  margin-left: auto;
+  font-family: var(--font-latin);
+}
+
+.postContent {
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--ink);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.postContentLink {
+  display: block;
+  background: none;
+  border: none;
+  padding: 0;
+  text-align: left;
+  cursor: pointer;
+  color: inherit;
+  font: inherit;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tag {
+  font-size: 12px;
+  padding: 1px 8px;
+  border-radius: 999px;
+  background: var(--desk-soft);
+  color: var(--ink-muted);
+}
+
+.postFoot {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex-wrap: wrap;
+  font-size: 12.5px;
+  color: var(--ink-muted);
+  border-top: 1px solid var(--desk-soft);
+  padding-top: var(--space-2);
+}
+
+.reactionBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  border: 1px solid var(--desk);
+  background: var(--paper);
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.reactionBtn[data-active='true'] {
+  border-color: var(--uniform-blue);
+  background: color-mix(in srgb, var(--uniform-blue) 8%, transparent);
+  color: var(--uniform-blue);
+}
+
+.footAction {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  color: var(--ink-muted);
+  cursor: pointer;
+  font-size: 12.5px;
+  padding: 2px;
+}
+
+.footAction:hover {
+  color: var(--uniform-blue);
+}
+
+.moderated {
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+  background: var(--desk-soft);
+  font-size: 13px;
+  color: var(--ink-muted);
+  font-style: italic;
+}
+
+/* Poll */
+.poll {
+  border: 1px solid var(--desk);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.pollQuestion {
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.pollOption {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 8px 10px;
+  border: 1px solid var(--desk);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  overflow: hidden;
+  font-size: 13.5px;
+}
+
+.pollBar {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: color-mix(in srgb, var(--uniform-blue) 12%, transparent);
+  z-index: 0;
+}
+
+.pollLabel {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+}
+
+.pollCount {
+  position: relative;
+  z-index: 1;
+  font-family: var(--font-latin);
+  color: var(--ink-muted);
+  font-size: 12px;
+}
+
+/* Composer */
+.composer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  border: 1px solid var(--desk);
+  border-radius: var(--radius-md);
+  background: var(--paper-raised);
+  padding: var(--space-4);
+}
+
+.tagInputRow {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.pollEditor {
+  border: 1px dashed var(--desk);
+  border-radius: var(--radius-sm);
+  padding: var(--space-3);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.pollOptionRow {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.switchRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 14px;
+}
+
+.switch {
+  position: relative;
+  width: 40px;
+  height: 22px;
+  border-radius: 999px;
+  background: var(--desk);
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.switch[data-on='true'] {
+  background: var(--uniform-blue);
+}
+
+.switchKnob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.15s ease;
+}
+
+.switch[data-on='true'] .switchKnob {
+  transform: translateX(18px);
+}
+
+/* Comments */
+.comments {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.comment {
+  display: flex;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+  background: var(--paper-raised);
+  border: 1px solid var(--desk-soft);
+}
+
+.commentBody {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.commentHead {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 12.5px;
+  color: var(--ink-muted);
+}
+
+.commentText {
+  font-size: 14px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.commentActions {
+  display: flex;
+  gap: var(--space-3);
+  font-size: 12px;
+}
+
+.replyBox {
+  margin-left: 40px;
+  border-left: 2px solid var(--desk);
+  padding-left: var(--space-3);
+}
+
+/* Bullet wall */
+.wallWrap {
+  position: relative;
+  height: 60vh;
+  min-height: 360px;
+  border: 1px solid var(--desk);
+  border-radius: var(--radius-md);
+  background: var(--ink);
+  overflow: hidden;
+}
+
+.wallLane {
+  position: absolute;
+  left: 100%;
+  white-space: nowrap;
+  color: #eef2f1;
+  font-size: 16px;
+  animation: bulletMove linear infinite;
+  will-change: transform;
+}
+
+@keyframes bulletMove {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(calc(-100vw - 100%));
+  }
+}
+
+.wallControls {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-3);
+}
+
+.wallStatic {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
+.wallStaticItem {
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  background: var(--paper-raised);
+  border: 1px solid var(--desk);
+  font-size: 14px;
+}
+
+/* Report modal reuse */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  background: rgb(16 20 22 / 0.4);
+}
+
+.modal {
+  width: 100%;
+  max-width: 420px;
+  background: var(--paper-raised);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  box-shadow: var(--shadow);
+  max-height: 88vh;
+  overflow-y: auto;
+}
+
+.modalTitle {
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.reasonList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.reasonOption {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 8px 10px;
+  border: 1px solid var(--desk);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.reasonOption[data-active='true'] {
+  border-color: var(--uniform-blue);
+  background: color-mix(in srgb, var(--uniform-blue) 6%, transparent);
+}
+
+/* Admin moderation bar */
+.modBar {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  padding-top: var(--space-2);
+  border-top: 1px dashed var(--desk);
+}
+
+/* Identity reveal */
+.revealBox {
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+  background: color-mix(in srgb, var(--annotation) 6%, transparent);
+  border: 1px solid color-mix(in srgb, var(--annotation) 30%, transparent);
+  font-size: 13px;
+}

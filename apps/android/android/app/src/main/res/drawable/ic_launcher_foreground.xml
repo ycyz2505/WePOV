@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- 取景框：四角标记，中间一个视角点 -->
+    <path
+        android:strokeColor="#176B87"
+        android:strokeWidth="4"
+        android:strokeLineCap="square"
+        android:fillColor="#00000000"
+        android:pathData="M30,30 L30,44 M30,30 L44,30" />
+    <path
+        android:strokeColor="#176B87"
+        android:strokeWidth="4"
+        android:strokeLineCap="square"
+        android:fillColor="#00000000"
+        android:pathData="M78,30 L78,44 M78,30 L64,30" />
+    <path
+        android:strokeColor="#176B87"
+        android:strokeWidth="4"
+        android:strokeLineCap="square"
+        android:fillColor="#00000000"
+        android:pathData="M30,78 L30,64 M30,78 L44,78" />
+    <path
+        android:strokeColor="#176B87"
+        android:strokeWidth="4"
+        android:strokeLineCap="square"
+        android:fillColor="#00000000"
+        android:pathData="M78,78 L78,64 M78,78 L64,78" />
+    <path
+        android:fillColor="#176B87"
+        android:pathData="M54,46 A8,8 0 1,0 54,62 A8,8 0 1,0 54,46 Z" />
+</vector>

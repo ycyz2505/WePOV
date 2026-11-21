@@ -1,0 +1,195 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: '22.11.0'
+  NPM_CONFIG_FUND: 'false'
+  NPM_CONFIG_AUDIT: 'false'
+
+jobs:
+  static:
+    name: 静态检查与单元测试
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: 安装依赖
+        run: npm ci
+
+      - name: 类型检查
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
+
+      - name: 单元测试
+        run: npm test
+
+  integration:
+    name: 数据库迁移与集成测试
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: wepov
+          POSTGRES_PASSWORD: wepov
+          POSTGRES_DB: wepov_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U wepov"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      DATABASE_URL: postgres://wepov:wepov@localhost:5432/wepov_test
+      NODE_ENV: test
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - run: npm ci
+
+      - name: 执行迁移
+        run: npm run db:migrate
+
+      - name: 数据库集成测试
+        run: npm test --workspace @wepov/database
+  build:
+    name: 构建 Web 与 API
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - run: npm ci
+
+      - name: 构建
+        run: npm run build
+
+      - name: 打包服务器产物
+        run: node scripts/package-server.mjs
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wepov-server
+          path: release/wepov-server-*.zip
+          retention-days: 7
+
+  e2e:
+    name: 端到端核心流程
+    runs-on: ubuntu-24.04
+    needs: build
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: wepov
+          POSTGRES_PASSWORD: wepov
+          POSTGRES_DB: wepov_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U wepov"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      DATABASE_URL: postgres://wepov:wepov@localhost:5432/wepov_test
+      NODE_ENV: test
+      PORT: '3000'
+      PUBLIC_ORIGIN: http://127.0.0.1:3000
+      SESSION_PEPPER: ci-session-pepper-0000000000000000
+      DATA_ENCRYPTION_KEY: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+      TREE_IDENTITY_HMAC_KEY: ci-tree-hmac-key-000000000000000000
+      CLASS_GATEWAY_PEPPER: ci-gateway-pepper-0000000000000000
+      MAINTENANCE_SIGNING_SECRET: ci-maintenance-secret-0000000000
+      SEED_GATEWAY_PASSCODE: ci-class-passcode
+      E2E_CLASS_PASSCODE: ci-class-passcode
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - run: npm ci
+      - run: npm run build
+      - run: npm run db:migrate
+      - run: npm run db:seed
+
+      - name: 安装浏览器
+        run: npx playwright install --with-deps chromium
+
+      - name: 运行端到端测试
+        run: npx playwright test
+
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
+
+  android:
+    name: Android 构建
+    runs-on: ubuntu-24.04
+    needs: build
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.11.1'
+
+      - run: npm ci
+      - run: npm run build --workspace @wepov/web
+
+      - name: 同步 Capacitor
+        run: npx cap sync android
+        working-directory: apps/android
+
+      - name: 构建 Debug APK
+        run: gradle assembleDebug --no-daemon
+        working-directory: apps/android/android
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wepov-android-debug
+          path: apps/android/android/app/build/outputs/apk/debug/*.apk
+          retention-days: 7

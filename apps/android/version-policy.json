@@ -1,0 +1,6 @@
+{
+  "versionCode": 1,
+  "versionName": "0.1.0",
+  "minSupportedVersionCode": 1,
+  "notes": "首个公开版本。之后每次发版递增 versionCode；只有存在必须淘汰的旧版时才提高 minSupportedVersionCode。"
+}

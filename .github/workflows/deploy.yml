@@ -1,0 +1,53 @@
+name: 部署
+
+on:
+  workflow_run:
+    workflows: ['构建并推送镜像']
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: 部署到 Altare
+    if: github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-24.04
+    env:
+      ALTARE_TOKEN: ${{ secrets.ALTR_TOKEN }}
+      APP: ${{ vars.ALTR_APP_NAME }}
+    steps:
+      - name: 检查配置
+        run: |
+          if [ -z "${ALTARE_TOKEN:-}" ]; then
+            echo "缺少 Secrets.ALTR_TOKEN（由 altr token 生成）" >&2
+            exit 1
+          fi
+          if [ -z "${APP:-}" ]; then
+            echo "缺少 Variables.ALTR_APP_NAME" >&2
+            exit 1
+          fi
+
+      - name: 安装 Altare CLI
+        run: |
+          curl -fsSL https://altare.gg/install.sh | sh
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: 创建或更新应用
+        run: |
+          IMAGE="ghcr.io/${GITHUB_REPOSITORY}/wepov:latest"
+          IMAGE=$(echo "$IMAGE" | tr '[:upper:]' '[:lower:]')
+          if altr docker info "$APP" >/dev/null 2>&1; then
+            echo "应用已存在，更新镜像"
+            altr docker set "$APP" --image "$IMAGE" --port 3000
+            altr docker redeploy "$APP"
+          else
+            echo "创建应用 $APP"
+            altr docker create "$APP" "$IMAGE" --port 3000 --memory 512 --cpu 100
+          fi

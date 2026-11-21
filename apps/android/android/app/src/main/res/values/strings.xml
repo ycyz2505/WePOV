@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">第一人称</string>
+    <string name="title_activity_main">第一人称</string>
+    <string name="package_name">app.wepov.client</string>
+    <string name="custom_url_scheme">app.wepov.client</string>
+</resources>

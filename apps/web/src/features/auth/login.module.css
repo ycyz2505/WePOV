@@ -1,0 +1,234 @@
+.login {
+  min-height: 100dvh;
+  padding: var(--space-6) var(--space-4) calc(var(--space-7) + env(safe-area-inset-bottom, 0px));
+  background: var(--paper);
+}
+
+.inner {
+  max-width: 440px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.title {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.sub {
+  font-size: 13.5px;
+  color: var(--ink-muted);
+}
+
+.selectedCard {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--desk);
+  border-radius: var(--radius-md);
+  background: var(--paper-raised);
+}
+
+.selectedMeta {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.selectedName {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.selectedReal {
+  font-size: 12.5px;
+  color: var(--ink-muted);
+}
+
+.changeLink {
+  margin-left: auto;
+  font-size: 13px;
+  color: var(--uniform-blue);
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+}
+
+/* Masked password display */
+.maskDisplay {
+  min-height: 52px;
+  padding: 10px var(--space-4);
+  border: 1px solid var(--desk);
+  border-radius: var(--radius-md);
+  background: var(--paper-raised);
+  font-family: var(--font-latin);
+  font-size: 18px;
+  letter-spacing: 0.28em;
+  display: flex;
+  align-items: center;
+  word-break: break-all;
+  color: var(--ink);
+}
+
+.maskEmpty {
+  color: var(--ink-muted);
+  letter-spacing: normal;
+  font-size: 14px;
+  font-family: var(--font-ui);
+}
+
+.maskNote {
+  font-size: 12px;
+  color: var(--ink-muted);
+  line-height: 1.5;
+}
+
+/* Mode choice */
+.modeGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.modeOption {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--desk);
+  border-radius: var(--radius-md);
+  background: var(--paper-raised);
+  cursor: pointer;
+}
+
+.modeOption[data-active='true'] {
+  border-color: var(--uniform-blue);
+  background: color-mix(in srgb, var(--uniform-blue) 6%, transparent);
+}
+
+.modeOption input {
+  margin-top: 3px;
+  accent-color: var(--uniform-blue);
+}
+
+.modeText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.modeTitle {
+  font-size: 14.5px;
+  font-weight: 600;
+}
+
+.modeDesc {
+  font-size: 12.5px;
+  color: var(--ink-muted);
+  line-height: 1.5;
+}
+
+.actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* On-screen keypad */
+.keypadWrap {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.keypadHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.keypadToggle {
+  display: inline-flex;
+  gap: 2px;
+  padding: 2px;
+  border: 1px solid var(--desk);
+  border-radius: 999px;
+  background: var(--paper-raised);
+}
+
+.keypadToggle button {
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-size: 12px;
+  color: var(--ink-muted);
+}
+
+.keypadToggle button[data-active='true'] {
+  background: var(--uniform-blue);
+  color: #fff;
+}
+
+.keypad {
+  display: grid;
+  gap: 6px;
+}
+
+.keypadNumeric {
+  grid-template-columns: repeat(3, 1fr);
+}
+
+.keypadAlpha {
+  grid-template-columns: repeat(6, 1fr);
+}
+
+.key {
+  min-height: 46px;
+  border: 1px solid var(--desk);
+  border-radius: var(--radius-sm);
+  background: var(--paper-raised);
+  font-family: var(--font-latin);
+  font-size: 17px;
+  color: var(--ink);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 0.08s ease;
+}
+
+.key:hover {
+  background: var(--desk-soft);
+}
+
+.key:active {
+  background: var(--desk);
+}
+
+.keyWide {
+  grid-column: span 2;
+}
+
+.keyAction {
+  background: var(--desk-soft);
+}
+
+@media (max-width: 420px) {
+  .keypadAlpha {
+    grid-template-columns: repeat(5, 1fr);
+  }
+  .key {
+    min-height: 42px;
+    font-size: 15px;
+  }
+}

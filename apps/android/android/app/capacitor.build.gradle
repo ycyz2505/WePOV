@@ -1,0 +1,14 @@
+// 由 Capacitor 在 `cap sync` 时生成；此处提供等价内容，保证 CI 在未执行 sync 时也能构建。
+apply plugin: 'com.android.application'
+
+android {
+    sourceSets {
+        main {
+            assets.srcDirs += ['src/main/assets']
+        }
+    }
+}
+
+dependencies {
+    implementation project(':capacitor-android')
+}

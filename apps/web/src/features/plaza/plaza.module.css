@@ -1,0 +1,512 @@
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.toolbar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.searchRow {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.searchBox {
+  position: relative;
+  flex: 1;
+  min-width: 200px;
+}
+
+.searchIcon {
+  position: absolute;
+  left: 11px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--ink-muted);
+  pointer-events: none;
+}
+
+.searchInput {
+  width: 100%;
+  height: 40px;
+  padding: 0 12px 0 38px;
+  border: 1px solid var(--desk);
+  border-radius: var(--radius-sm);
+  background: var(--paper-raised);
+  font-size: 14.5px;
+}
+
+.searchInput:focus-visible {
+  border-color: var(--uniform-blue);
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+.selectWrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--ink-muted);
+}
+
+.select {
+  height: 40px;
+  padding: 0 10px;
+  border: 1px solid var(--desk);
+  border-radius: var(--radius-sm);
+  background: var(--paper-raised);
+  font-size: 14px;
+  color: var(--ink);
+}
+
+.filterRow {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+/* Person card grid */
+.cardGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: var(--space-4);
+}
+
+.personCard {
+  border: 1px solid var(--desk);
+  border-radius: var(--radius-md);
+  background: var(--paper-raised);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: border-color 0.12s ease, box-shadow 0.12s ease;
+}
+
+.personCard:hover {
+  border-color: color-mix(in srgb, var(--uniform-blue) 40%, var(--desk));
+  box-shadow: var(--shadow);
+}
+
+.cover {
+  height: 84px;
+  position: relative;
+  background: var(--desk-soft);
+}
+
+.coverImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cardBody {
+  padding: 0 var(--space-4) var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-top: -26px;
+}
+
+.cardTop {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-2);
+}
+
+.cardAvatar {
+  border: 3px solid var(--paper-raised);
+  border-radius: 50%;
+  overflow: hidden;
+}
+
+.cardNames {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-top: 6px;
+}
+
+.nicknameRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.nickname {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.nickname:hover {
+  color: var(--uniform-blue);
+  text-decoration: none;
+}
+
+.realName {
+  font-size: 12.5px;
+  color: var(--ink-muted);
+}
+
+.signature {
+  font-size: 13px;
+  color: var(--ink);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.intro {
+  font-size: 12.5px;
+  color: var(--ink-muted);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.cardMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  font-size: 12px;
+  color: var(--ink-muted);
+  margin-top: 2px;
+}
+
+.cardMetaItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.cardFooter {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+.countRow {
+  display: flex;
+  gap: var(--space-3);
+  font-size: 12px;
+  color: var(--ink-muted);
+  font-family: var(--font-latin);
+}
+
+.countBtn {
+  background: none;
+  border: none;
+  color: var(--ink-muted);
+  font-size: 12px;
+  padding: 2px;
+  cursor: pointer;
+  display: inline-flex;
+  gap: 3px;
+  align-items: center;
+}
+
+.countBtn:hover {
+  color: var(--uniform-blue);
+}
+
+.countBtn strong {
+  font-family: var(--font-latin);
+  font-weight: 600;
+  color: var(--ink);
+}
+
+.followBtn {
+  margin-left: auto;
+}
+
+/* Profile / personal space */
+.profileLayout {
+  display: grid;
+  grid-template-columns: 320px minmax(0, 1fr);
+  gap: var(--space-5);
+  align-items: start;
+}
+
+.profileAside {
+  position: sticky;
+  top: 72px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.bigCard {
+  border: 1px solid var(--desk);
+  border-radius: var(--radius-md);
+  background: var(--paper-raised);
+  overflow: hidden;
+}
+
+.bigCover {
+  height: 120px;
+  background: var(--desk-soft);
+  position: relative;
+}
+
+.bigCoverImg {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.bigBody {
+  padding: var(--space-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-top: -40px;
+}
+
+.bigAvatar {
+  border: 3px solid var(--paper-raised);
+  border-radius: 50%;
+  overflow: hidden;
+  width: 80px;
+  height: 80px;
+}
+
+.bigName {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.bigReal {
+  font-size: 13px;
+  color: var(--ink-muted);
+}
+
+.statRow {
+  display: flex;
+  gap: var(--space-4);
+  padding: var(--space-3) 0;
+  border-top: 1px solid var(--desk-soft);
+  border-bottom: 1px solid var(--desk-soft);
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  flex: 1;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--ink-muted);
+}
+
+.statValue {
+  font-family: var(--font-latin);
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.statLabel {
+  font-size: 11.5px;
+}
+
+.profileMain {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.detailList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.detailRow {
+  display: grid;
+  grid-template-columns: 90px minmax(0, 1fr);
+  gap: var(--space-3);
+  font-size: 14px;
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--desk-soft);
+}
+
+.detailRow:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.detailLabel {
+  color: var(--ink-muted);
+  font-size: 13px;
+}
+
+.detailValue {
+  color: var(--ink);
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.mutualTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 11.5px;
+  color: var(--success);
+}
+
+/* Follow list */
+.userRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-3) 0;
+  border-bottom: 1px solid var(--desk-soft);
+}
+
+.userRow:last-child {
+  border-bottom: none;
+}
+
+.userMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+  flex: 1;
+}
+
+.userName {
+  font-size: 14.5px;
+  font-weight: 500;
+  color: var(--ink);
+  background: none;
+  border: none;
+  text-align: left;
+  cursor: pointer;
+  padding: 0;
+}
+
+.userName:hover {
+  color: var(--uniform-blue);
+}
+
+.userSub {
+  font-size: 12px;
+  color: var(--ink-muted);
+}
+
+/* Edit form */
+.editForm {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.imageEditRow {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.imagePreview {
+  border: 1px solid var(--desk);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  background: var(--desk-soft);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--ink-muted);
+  font-size: 12px;
+}
+
+.avatarPreview {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+}
+
+.bgPreview {
+  width: 160px;
+  height: 54px;
+}
+
+.toggleRow {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: 14px;
+}
+
+.switch {
+  position: relative;
+  width: 40px;
+  height: 22px;
+  border-radius: 999px;
+  background: var(--desk);
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.switch[data-on='true'] {
+  background: var(--uniform-blue);
+}
+
+.switchKnob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: #fff;
+  transition: transform 0.15s ease;
+}
+
+.switch[data-on='true'] .switchKnob {
+  transform: translateX(18px);
+}
+
+.previewLabel {
+  font-size: 12px;
+  color: var(--ink-muted);
+  margin-bottom: var(--space-2);
+}
+
+@media (max-width: 900px) {
+  .profileLayout {
+    grid-template-columns: 1fr;
+  }
+  .profileAside {
+    position: static;
+  }
+}
+
+@media (max-width: 560px) {
+  .cardGrid {
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: var(--space-3);
+  }
+}

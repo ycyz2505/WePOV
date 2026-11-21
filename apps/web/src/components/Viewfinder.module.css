@@ -1,0 +1,68 @@
+.viewfinder {
+  position: relative;
+  padding: var(--space-5);
+}
+
+.viewfinder::before,
+.viewfinder::after,
+.cornerBottom::before,
+.cornerBottom::after {
+  content: '';
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  border-color: var(--uniform-blue);
+  border-style: solid;
+  border-width: 0;
+  opacity: 0.85;
+  pointer-events: none;
+}
+
+/* top-left + top-right via ::before/::after */
+.viewfinder::before {
+  top: 0;
+  left: 0;
+  border-top-width: 1.5px;
+  border-left-width: 1.5px;
+}
+
+.viewfinder::after {
+  top: 0;
+  right: 0;
+  border-top-width: 1.5px;
+  border-right-width: 1.5px;
+}
+
+/* bottom-left + bottom-right on a nested span */
+.cornerBottom {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.cornerBottom::before {
+  bottom: 0;
+  left: 0;
+  border-bottom-width: 1.5px;
+  border-left-width: 1.5px;
+}
+
+.cornerBottom::after {
+  bottom: 0;
+  right: 0;
+  border-bottom-width: 1.5px;
+  border-right-width: 1.5px;
+}
+
+@media (max-width: 640px) {
+  .viewfinder {
+    padding: var(--space-3) var(--space-4);
+  }
+  .viewfinder::before,
+  .viewfinder::after,
+  .cornerBottom::before,
+  .cornerBottom::after {
+    width: 12px;
+    height: 12px;
+  }
+}
