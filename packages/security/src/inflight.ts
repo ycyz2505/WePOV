@@ -58,7 +58,6 @@ export class InflightGate {
           resolve({ ok: false, reason: 'timeout', retryAfterMs: 100 })
         }, this.#maxWaitMs),
       }
-      entry.timer.unref?.()
       this.#queue.push(entry)
     })
   }

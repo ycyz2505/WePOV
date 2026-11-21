@@ -331,11 +331,16 @@ export const adminRoutes: FastifyPluginAsync = async (app) => {
         if (!row) throw ApiError.notFound('target_not_found', '目标内容不存在')
         before = { status: row.status, moderationNote: row.moderation_note }
         const nextStatus = body.action === 'restore' ? 'visible' : body.action
+        // The reason is only written to the content row when the operator chose
+        // to show it to the subject; the full reason always lives in the audit
+        // trail and moderation_actions.
+        const visibleNote =
+          body.action === 'restore' ? null : body.showReasonToSubject ? body.reason : null
         await tx.query(
           `UPDATE ${table} SET status = $3, moderation_note = $4 WHERE id = $1 AND class_id = $2`,
-          [body.targetId, auth.classId, nextStatus, body.action === 'restore' ? null : body.reason],
+          [body.targetId, auth.classId, nextStatus, visibleNote],
         )
-        after = { status: nextStatus, moderationNote: body.action === 'restore' ? null : body.reason }
+        after = { status: nextStatus, moderationNote: visibleNote }
         if (body.action === 'remove') {
           const label = table === 'tree_posts' ? '树洞帖子' : '树洞评论'
           await tx.query(

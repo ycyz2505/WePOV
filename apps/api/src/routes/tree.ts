@@ -26,6 +26,7 @@ interface TreePostRow {
   updated_at: Date
   author_hmac: string
   saved: boolean
+  operator_name?: string | null
 }
 
 interface TreeCommentRow {
@@ -39,6 +40,7 @@ interface TreeCommentRow {
   created_at: Date
   updated_at: Date
   alias: string
+  operator_name?: string | null
 }
 
 interface StoredPoll {
@@ -70,20 +72,31 @@ function parsePoll(value: unknown): StoredPoll | null {
   return options.length >= 2 ? { question: poll['question'], multiple: poll['multiple'], options } : null
 }
 
+/**
+ * Neutral moderation marker (§6.3, Q30): everyone sees "值班管理员已处理".
+ * Whether the reason and the operator are shown is decided per action and
+ * already filtered by the query (NULL note when not shown to the subject).
+ */
 function moderation(
   status: TreePostRow['status'] | TreeCommentRow['status'],
   note: string | null,
+  operatorName: string | null,
 ): {
   action: 'hide' | 'remove' | 'collapse'
   placeholder: string
   reason: string | null
-  operatorName: null
+  operatorName: string | null
   createdAt: string
 } | null {
   if (status === 'visible') return null
   const action = status === 'hidden' ? 'hide' : status === 'collapsed' ? 'collapse' : 'remove'
-  const placeholder = action === 'collapse' ? '内容已折叠' : action === 'hide' ? '内容已隐藏' : '内容已删除'
-  return { action, placeholder, reason: note, operatorName: null, createdAt: new Date().toISOString() }
+  return {
+    action,
+    placeholder: '值班管理员已处理',
+    reason: note,
+    operatorName,
+    createdAt: new Date().toISOString(),
+  }
 }
 
 async function pollDto(
@@ -154,7 +167,7 @@ async function postDto(app: Parameters<FastifyPluginAsync>[0], row: TreePostRow,
     updatedAt: row.updated_at.toISOString(),
     isMine: mine,
     saved: row.saved,
-    moderation: moderation(row.status, row.moderation_note),
+    moderation: moderation(row.status, row.moderation_note, row.operator_name ?? null),
   }
 }
 
@@ -163,7 +176,12 @@ async function getPost(classId: string, postId: string, viewerId: string, app: P
     `SELECT tp.id, tp.content, tp.tags, tp.allow_bullet_screen, tp.poll, tp.status,
             tp.moderation_note, tp.comment_count, tp.reaction_count, tp.created_at,
             tp.updated_at, tim.author_hmac,
-            EXISTS (SELECT 1 FROM tree_saves s WHERE s.post_id = tp.id AND s.user_id = $3) AS saved
+            EXISTS (SELECT 1 FROM tree_saves s WHERE s.post_id = tp.id AND s.user_id = $3) AS saved,
+            (SELECT p.nickname FROM moderation_actions ma
+               JOIN profiles p ON p.user_id = ma.operator_id AND p.class_id = ma.class_id
+              WHERE ma.class_id = tp.class_id AND ma.target_type = 'tree_post' AND ma.target_id = tp.id
+                AND ma.show_operator = true
+              ORDER BY ma.created_at DESC LIMIT 1) AS operator_name
        FROM tree_posts tp
        JOIN tree_identity_map tim ON tim.post_id = tp.id AND tim.class_id = tp.class_id
       WHERE tp.class_id = $1 AND tp.id = $2 AND tp.status <> 'removed'`,
@@ -215,7 +233,12 @@ export const treeRoutes: FastifyPluginAsync = async (app) => {
     const result = await getPool().query<TreePostRow>(
       `SELECT tp.id, tp.content, tp.tags, tp.allow_bullet_screen, tp.poll, tp.status,
               tp.moderation_note, tp.comment_count, tp.reaction_count, tp.created_at,
-              tp.updated_at, tim.author_hmac, (saved.user_id IS NOT NULL) AS saved
+              tp.updated_at, tim.author_hmac, (saved.user_id IS NOT NULL) AS saved,
+              (SELECT p.nickname FROM moderation_actions ma
+                 JOIN profiles p ON p.user_id = ma.operator_id AND p.class_id = ma.class_id
+                WHERE ma.class_id = tp.class_id AND ma.target_type = 'tree_post' AND ma.target_id = tp.id
+                  AND ma.show_operator = true
+                ORDER BY ma.created_at DESC LIMIT 1) AS operator_name
          FROM tree_posts tp
          JOIN tree_identity_map tim ON tim.post_id = tp.id AND tim.class_id = tp.class_id
          LEFT JOIN tree_saves saved ON saved.post_id = tp.id AND saved.user_id = $2
@@ -267,7 +290,12 @@ export const treeRoutes: FastifyPluginAsync = async (app) => {
       `SELECT tp.id, tp.content, tp.tags, tp.allow_bullet_screen, tp.poll, tp.status,
               tp.moderation_note, tp.comment_count, tp.reaction_count, tp.created_at,
               tp.updated_at, tim.author_hmac,
-              EXISTS (SELECT 1 FROM tree_saves s WHERE s.post_id = tp.id AND s.user_id = $2) AS saved
+              EXISTS (SELECT 1 FROM tree_saves s WHERE s.post_id = tp.id AND s.user_id = $2) AS saved,
+              (SELECT p.nickname FROM moderation_actions ma
+                 JOIN profiles p ON p.user_id = ma.operator_id AND p.class_id = ma.class_id
+                WHERE ma.class_id = tp.class_id AND ma.target_type = 'tree_post' AND ma.target_id = tp.id
+                  AND ma.show_operator = true
+                ORDER BY ma.created_at DESC LIMIT 1) AS operator_name
          FROM tree_posts tp JOIN tree_identity_map tim ON tim.post_id = tp.id
         WHERE tp.class_id = $1 AND tim.author_hmac = $3 ${cursorSql}
         ORDER BY tp.created_at DESC, tp.id DESC LIMIT $${params.length}`,
@@ -350,7 +378,12 @@ export const treeRoutes: FastifyPluginAsync = async (app) => {
     params.push(31)
     const result = await getPool().query<TreeCommentRow>(
       `SELECT tc.id, tc.content, tc.parent_comment_id, tc.author_hmac, tc.is_op,
-              tc.status, tc.moderation_note, tc.created_at, tca.alias
+              tc.status, tc.moderation_note, tc.created_at, tca.alias,
+              (SELECT p.nickname FROM moderation_actions ma
+                 JOIN profiles p ON p.user_id = ma.operator_id AND p.class_id = ma.class_id
+                WHERE ma.class_id = tc.class_id AND ma.target_type = 'tree_comment' AND ma.target_id = tc.id
+                  AND ma.show_operator = true
+                ORDER BY ma.created_at DESC LIMIT 1) AS operator_name
          FROM tree_comments tc
          JOIN tree_comment_aliases tca ON tca.post_id = tc.post_id AND tca.author_hmac = tc.author_hmac
         WHERE tc.class_id = $1 AND tc.post_id = $2 AND tc.status <> 'removed' ${cursorSql}
@@ -369,7 +402,7 @@ export const treeRoutes: FastifyPluginAsync = async (app) => {
         parentCommentId: row.parent_comment_id,
         createdAt: row.created_at.toISOString(),
         isMine: row.author_hmac === viewer,
-        moderation: moderation(row.status, row.moderation_note),
+        moderation: moderation(row.status, row.moderation_note, row.operator_name ?? null),
       })),
       nextCursor:
         result.rows.length > 30 && last

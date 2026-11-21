@@ -51,7 +51,6 @@ export class CountingSemaphore implements Semaphore {
           if (idx >= 0) this.#queue.splice(idx, 1)
           reject(new SemaphoreTimeoutError())
         }, maxWaitMs)
-        entry.timer.unref?.()
       }
       this.#queue.push(entry)
     })
