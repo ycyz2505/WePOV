@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'preact/hooks'
-import type { JSX } from 'preact'
+import type { ComponentChildren, JSX } from 'preact'
 import { Icon } from './Icon'
 import { Avatar } from './ui'
 import { cn } from '../lib/cn'
@@ -13,8 +13,8 @@ import ui from './ui.module.css'
 interface AppShellProps {
   activeKey: string
   title: string
-  children: JSX.Element | JSX.Element[]
-  context?: JSX.Element
+  children: ComponentChildren
+  context?: ComponentChildren
   wide?: boolean
 }
 

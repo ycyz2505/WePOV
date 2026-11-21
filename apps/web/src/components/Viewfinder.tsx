@@ -1,8 +1,8 @@
-import type { JSX } from 'preact'
+import type { ComponentChildren, JSX } from 'preact'
 import styles from './Viewfinder.module.css'
 
 interface ViewfinderProps {
-  children: JSX.Element | JSX.Element[] | string
+  children: ComponentChildren
   class?: string
 }
 

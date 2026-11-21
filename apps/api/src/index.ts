@@ -35,7 +35,8 @@ import { capsuleRoutes } from './routes/capsules.js'
 import { classroomRoutes } from './routes/classroom.js'
 import { bossRoutes } from './routes/boss.js'
 import { notificationRoutes } from './routes/notifications.js'
-import { eventsRoutes } from './routes/events.js'import { reportRoutes } from './routes/reports.js'
+import { eventsRoutes } from './routes/events.js'
+import { reportRoutes } from './routes/reports.js'
 import { adminRoutes } from './routes/admin.js'
 
 /**

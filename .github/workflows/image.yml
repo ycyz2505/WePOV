@@ -63,6 +63,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh api -X PATCH "user/packages/container/wepov" -f visibility=public >/dev/null \
+          # 包归属用户命名空间；工作流令牌对关联到本仓库的包有管理权限。
+          gh api -X PATCH "users/${GITHUB_REPOSITORY_OWNER}/packages/container/wepov" -f visibility=public >/dev/null \
             && echo "镜像包已设为公开" \
             || echo "::warning::镜像包可见性设置失败，可稍后在 GitHub 包设置中手动公开"

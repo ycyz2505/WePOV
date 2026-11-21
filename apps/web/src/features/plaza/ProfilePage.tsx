@@ -227,6 +227,10 @@ function FollowList({ userId, kind }: { userId: string; kind: 'following' | 'fol
     return <ErrorState error={list.state.error} onRetry={list.reload} />
   }
 
+  if (list.state.status !== 'success') {
+    return <div />
+  }
+
   if (list.state.data.items.length === 0) {
     return (
       <StateBlock
@@ -312,7 +316,7 @@ function ProfileSkeleton(): preact.JSX.Element {
         <div class={styles.bigCard}>
           <Skeleton height={120} radius={0} />
           <div style={{ padding: 16, display: 'flex', flexDirection: 'column', gap: 10 }}>
-            <Skeleton width={80} height={80} radius={40} />
+            <Skeleton width="80px" height={80} radius={40} />
             <Skeleton width="50%" height={20} />
             <Skeleton width="70%" height={14} />
             <Skeleton width="100%" height={40} />

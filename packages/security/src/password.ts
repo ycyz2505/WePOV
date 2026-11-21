@@ -20,7 +20,7 @@ import { CountingSemaphore } from './concurrency.js'
  * import would break under transpile-only builders (tsx/esbuild).
  */
 export const ARGON2_OPTIONS: Options = {
-  algorithm: 2 as Options['algorithm'],
+  algorithm: 2 as NonNullable<Options['algorithm']>,
   memoryCost: 19 * 1024, // KiB => 19 MiB
   timeCost: 2,
   parallelism: 1,

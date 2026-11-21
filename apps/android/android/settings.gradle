@@ -7,5 +7,13 @@ pluginManagement {
 }
 
 include ':app'
-include ':capacitor-android'
-project(':capacitor-android').projectDir = new File('../node_modules/@capacitor/android/capacitor')
+
+// `cap sync` 生成 capacitor.settings.gradle（包含所有已安装插件模块）。
+// 未执行 sync 时退回到仅 @capacitor/android，保证纯 Gradle 构建也能跑。
+def capacitorSettings = file('capacitor.settings.gradle')
+if (capacitorSettings.exists()) {
+    apply from: capacitorSettings
+} else {
+    include ':capacitor-android'
+    project(':capacitor-android').projectDir = new File('../node_modules/@capacitor/android/capacitor')
+}

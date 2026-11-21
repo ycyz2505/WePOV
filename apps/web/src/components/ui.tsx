@@ -109,7 +109,7 @@ export function TextField({
   ...rest
 }: TextFieldProps): JSX.Element {
   const autoId = useId()
-  const fieldId = id ?? autoId
+  const fieldId = typeof id === 'string' ? id : autoId
   const stringValue = typeof value === 'string' ? value : ''
   return (
     <Field
@@ -152,7 +152,7 @@ export function TextArea({
   ...rest
 }: TextAreaProps): JSX.Element {
   const autoId = useId()
-  const fieldId = id ?? autoId
+  const fieldId = typeof id === 'string' ? id : autoId
   const stringValue = typeof value === 'string' ? value : ''
   return (
     <Field

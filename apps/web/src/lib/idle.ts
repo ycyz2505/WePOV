@@ -86,7 +86,7 @@ export function initSessionLifecycle(): () => void {
   })
   installUnloadHandlers()
   return () => {
-    startEffect.dispose()
+    startEffect()
     idleTimer.stop()
   }
 }

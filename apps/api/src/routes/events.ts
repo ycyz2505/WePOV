@@ -191,8 +191,10 @@ export const eventsRoutes: FastifyPluginAsync = async (app) => {
       clearTimeout(lifetime)
       unsubscribe()
     }
+    // Only the response socket is reliable here: in modern Node, the request's
+    // own 'close' fires as soon as the request body is complete, which for a GET
+    // is immediately and would unsubscribe before the first notification.
     request.raw.once('aborted', cleanup)
-    request.raw.once('close', cleanup)
     reply.raw.once('close', cleanup)
     reply.raw.once('finish', cleanup)
   })

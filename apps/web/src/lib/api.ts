@@ -510,7 +510,7 @@ export const adminApi = {
 /* ─────────────────────────── Session probe (public) ─────────────────────────── */
 
 export function fetchSessionUser(): Promise<SessionUser> {
-  return request('/auth/session').then((info: SessionInfo) => info.user)
+  return request<SessionInfo>('/auth/session').then((info) => info.user)
 }
 
 export { API_BASE }
