@@ -13,7 +13,10 @@ const config: CapacitorConfig = {
   server: {
     androidScheme: 'https',
     hostname: 'wepov.local',
-    allowNavigation: ['*.altare.app', '*.altare.global', 'github.com', 'api.github.com'],
+    // 客户端加载线上站点：唯一的平台差异是原生强制更新器。
+    // 站点换域名时需重新发版 APK。
+    url: 'https://wepov.go.altare.global',
+    allowNavigation: ['*.altare.global', 'github.com', 'api.github.com'],
   },
 }
 

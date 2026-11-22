@@ -6,14 +6,16 @@
 
 - GitHub 仓库：`ycyz2505/WePOV`，主分支 `main`
 - Altare 团队：Default
-- 无需自有域名，使用 `altr domains add` 免费获得 `<name>.altare.app`
+- 无需自有域名，`altr domains add` 会给出免费的 `<app>.go.altare.global`
+
+> **区域必须一致**：Altare 的数据库内网域名（`*.db.altare.global`）只在同一区域可解析，公网 DNS 为 NXDOMAIN。应用与数据库必须同在 `us`、`eu` 或 `asia`。应用创建后再改区域需要重建，所以先定区域再建库。
 
 ## 2. 创建资源
 
 本仓库不依赖「控制台里手工建的 App」。镜像由 GitHub Actions 推到 GHCR，`deploy.yml` 用 `altr docker create` 首次创建、之后 `altr docker set` + `redeploy` 更新。唯一前提是 GitHub 能拉取 GHCR 上的公开镜像——仓库若为私有，需要把 GHCR 包设为 Public（Package settings → Change visibility）。
 
 ```bash
-altr postgres create wepov --size micro
+altr postgres create wepov --size micro --region asia   # 与下面的应用同区
 altr u3 create wepov-media
 altr u3 create wepov-logs
 altr u3 create wepov-export
@@ -29,7 +31,7 @@ altr u3 attach wepov-export <app>
 altr domains add <app> wepov
 ```
 
-`altr domains add <app> wepov` 会得到免费的 `wepov.altare.app`（重名时自动加后缀）。无需购买域名。
+`altr domains add <app> wepov` 会得到免费的 `https://<app>.go.altare.global`（重名时自动加后缀）。无需购买域名，也拿不到边缘防火墙/真实客户端 IP——这是零预算的直接代价，应用层已用账号维度限流兜底。
 
 `altr postgres attach` / `altr u3 attach` 会注入连接串与对象存储变量并触发一次重启，所以顺序必须是「先部署、再 attach」。
 
@@ -45,7 +47,7 @@ altr domains add <app> wepov
 | `TREE_IDENTITY_HMAC_KEY` | 32 字节随机值，与上一项不同 |
 | `CLASS_GATEWAY_PEPPER` | 32 字节随机值 |
 | `MAINTENANCE_SIGNING_SECRET` | 32 字节随机值 |
-| `PUBLIC_ORIGIN` | 正式访问地址，例如 `https://wepov.altare.app` |
+| `PUBLIC_ORIGIN` | 正式访问地址，例如 `https://wepov.go.altare.global` |
 | `GITHUB_REPO` | `ycyz2505/WePOV`，用于拼 Release 清单地址 |
 | `UPDATE_MANIFEST_URL` | 可选，显式指定清单地址（优先于 `GITHUB_REPO`） |
 | `UPDATE_MANIFEST_MIRRORS` | 逗号分隔的下载加速前缀，App 按顺序回退 |
@@ -68,16 +70,24 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 
 ## 4. 首次迁移与初始化
 
-容器启动时 `docker/start.sh` 会自动执行迁移（幂等，多实例由 advisory lock 串行化）。首次还需播种班级与总管理员：
+容器启动时 `docker/start.sh` 会自动执行迁移（幂等，多实例由 advisory lock 串行化）。首次部署把 `BOOTSTRAP_SEED=1` 加进应用环境变量，启动时会自动建班并创建总管理员；`seed` 自身幂等，班级已存在时直接回滚。同时设置：
+
+| 变量 | 说明 |
+|---|---|
+| `SEED_GATEWAY_PASSCODE` | 班级通行口令（首次启动写入） |
+| `SEED_SUPERADMIN_PASSWORD` | 总管理员初始密码，首次登录会强制修改 |
+| `SEED_SUPERADMIN_NICKNAME` | 默认「班长」 |
+| `SEED_SUPERADMIN_REALNAME` | 默认「总管理员」 |
+
+初始化完成后移除 `BOOTSTRAP_SEED`，避免每次重启都执行种子脚本。
+
+也可以在本机跑一次（会打印口令与初始密码）：
 
 ```bash
-altr logs <app>            # 取 DATABASE_URL 之外的运行状态
 DATABASE_URL="<生产连接串>" SEED_GATEWAY_PASSCODE="<自定义班级口令>" npm run db:seed
 ```
 
-`db:seed` 只在本地或 CI 跑一次，不要在容器里重复执行。种子脚本会创建班级、生成班级口令与总管理员初始密码。**这些值只显示一次**，请立即离线保存。
-
-生产连接串在控制台 Database → wepov → Connection string 查看；`altr postgres` 子命令不会把密码打印到终端。
+生产连接串可用 `altr postgres url wepov` 查看（该命令会打印密码，注意终端历史）。
 
 ## 5. GitHub 配置
 
