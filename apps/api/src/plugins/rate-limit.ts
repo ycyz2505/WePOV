@@ -1,4 +1,5 @@
-import type { FastifyPluginAsync, FastifyRequest } from 'fastify'
+import type { FastifyRequest } from 'fastify'
+import fp from 'fastify-plugin'
 import { retryAfterSeconds } from '@wepov/security'
 import { ApiError } from '../errors.js'
 import { sendRetryAfter } from '../lib/auth-guards.js'
@@ -21,7 +22,7 @@ import { sendRetryAfter } from '../lib/auth-guards.js'
  * and Retry-After rather than queueing unboundedly.
  */
 
-export const rateLimitPlugin: FastifyPluginAsync = async (app) => {
+export const rateLimitPlugin = fp(async (app) => {
   // Static assets, the SPA document and health probes are not business traffic.
   const BYPASS_PREFIXES = ['/health', '/ready', '/api/v1/app/update-manifest']
 
@@ -92,4 +93,4 @@ export const rateLimitPlugin: FastifyPluginAsync = async (app) => {
   app.addHook('onClose', async () => {
     clearInterval(sweepTimer)
   })
-}
+}, { name: 'wepov-rate-limit' })

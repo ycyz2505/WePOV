@@ -1,4 +1,5 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
+import fp from 'fastify-plugin'
 import { getPool } from '@wepov/database'
 import { ApiError } from '../errors.js'
 import { gatewayFromRequest } from '../lib/gateway.js'
@@ -29,7 +30,7 @@ function isPublic(path: string): boolean {
   return PUBLIC_PATTERNS.some((pattern) => pattern.test(path))
 }
 
-export async function gatewayPlugin(app: FastifyInstance): Promise<void> {
+export const gatewayPlugin = fp(async (app: FastifyInstance): Promise<void> => {
   app.addHook('onRequest', async (request: FastifyRequest, _reply: FastifyReply) => {
     const path = request.url.split('?')[0] ?? '/'
     if (!path.startsWith('/api/v1/')) return
@@ -48,4 +49,4 @@ export async function gatewayPlugin(app: FastifyInstance): Promise<void> {
       .query('UPDATE gateway_credentials SET last_used_at = now() WHERE id = $1', [gateway.credentialId])
       .catch(() => undefined)
   })
-}
+}, { name: 'wepov-gateway' })

@@ -1,4 +1,5 @@
-import type { FastifyPluginAsync, FastifyRequest } from 'fastify'
+import type { FastifyRequest } from 'fastify'
+import fp from 'fastify-plugin'
 import { randomUUID } from 'node:crypto'
 import { clientIp } from '../lib/auth-guards.js'
 import { encryptLogFields, recordRequestLog } from '../lib/telemetry.js'
@@ -11,7 +12,7 @@ import { encryptLogFields, recordRequestLog } from '../lib/telemetry.js'
  * content. Route templates are logged instead of raw URLs.
  */
 
-export const requestContextPlugin: FastifyPluginAsync = async (app) => {
+export const requestContextPlugin = fp(async (app) => {
   app.addHook('onRequest', async (request, reply) => {
     const incoming = request.headers['x-request-id']
     const requestId =
@@ -87,4 +88,4 @@ export const requestContextPlugin: FastifyPluginAsync = async (app) => {
       deployVersion: process.env['ALTARE_DEPLOY'] ?? process.env['ALTARE_GIT_COMMIT_SHA'] ?? null,
     })
   })
-}
+}, { name: 'wepov-request-context' })

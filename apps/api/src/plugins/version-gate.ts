@@ -1,4 +1,5 @@
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify'
+import fp from 'fastify-plugin'
 import { ApiError } from '../errors.js'
 import { loadManifest } from '../lib/manifest.js'
 import { loadVersionPolicy } from '../lib/policy.js'
@@ -17,7 +18,7 @@ import { loadVersionPolicy } from '../lib/policy.js'
 
 const SKIP_PREFIXES = ['/health', '/ready', '/api/v1/app/update-manifest']
 
-export async function versionGatePlugin(app: FastifyInstance): Promise<void> {
+export const versionGatePlugin = fp(async (app: FastifyInstance): Promise<void> => {
   app.addHook('onRequest', async (request: FastifyRequest, _reply: FastifyReply) => {
     const url = request.url
     if (SKIP_PREFIXES.some((prefix) => url.startsWith(prefix))) return
@@ -34,4 +35,4 @@ export async function versionGatePlugin(app: FastifyInstance): Promise<void> {
     const manifest = await loadManifest(app)
     throw ApiError.upgradeRequired('当前版本过低，需要更新后才能继续使用', manifest)
   })
-}
+}, { name: 'wepov-version-gate' })

@@ -1,4 +1,5 @@
-import type { FastifyPluginAsync, FastifyRequest, FastifyReply } from 'fastify'
+import type { FastifyRequest, FastifyReply } from 'fastify'
+import fp from 'fastify-plugin'
 import { hashToken, PERMISSIONS } from '@wepov/security'
 import { getPool } from '@wepov/database'
 import { ApiError } from '../errors.js'
@@ -57,7 +58,7 @@ const RESOLVE_SQL = `
      AND f.absolute_expires_at > now()
 `
 
-export const authPlugin: FastifyPluginAsync = async (app) => {
+export const authPlugin = fp(async (app) => {
   app.decorateRequest('auth', null)
   app.decorateRequest('gatewayVerified', false)
   app.decorateRequest('ipHmac', null)
@@ -125,4 +126,4 @@ export const authPlugin: FastifyPluginAsync = async (app) => {
     }
     return false
   })
-}
+}, { name: 'wepov-auth' })
