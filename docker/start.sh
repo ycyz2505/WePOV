@@ -11,12 +11,13 @@ if [ -n "${DATABASE_URL:-}" ]; then
   DBHOST=$(node -e "try{console.log(new URL(process.env.DATABASE_URL).hostname)}catch{process.exit(1)}" 2>/dev/null || true)
   if [ -n "${DBHOST:-}" ] && ! getent hosts "$DBHOST" >/dev/null 2>&1; then
     echo "[start] $DBHOST 默认解析失败，查询 Altare 网络 DNS 100.100.100.100"
-    DATABASE_RESOLVED_IP=$(dig +short @100.100.100.100 "$DBHOST" A 2>/dev/null | tail -1 || true)
+    LOOKUP=$(dig +short @100.100.100.100 "$DBHOST" A 2>/dev/null || true)
+    DATABASE_RESOLVED_IP=$(printf '%s\n' "$LOOKUP" | grep -E '^[0-9]{1,3}(\.[0-9]{1,3}){3}$' | tail -1 || true)
     export DATABASE_RESOLVED_IP
     if [ -n "${DATABASE_RESOLVED_IP:-}" ]; then
-      echo "[start] 内网 DNS 已返回数据库地址"
+      echo "[start] 内网 DNS 已返回有效数据库地址"
     else
-      echo "[start] Altare 网络 DNS 仍未返回 $DBHOST" >&2
+      echo "[start] Altare 网络 DNS 无法访问或未返回有效 A 记录：$DBHOST" >&2
     fi
   fi
 fi
