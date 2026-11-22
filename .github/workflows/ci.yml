@@ -160,10 +160,15 @@ jobs:
             "$BASE/auth/login")
           echo "$LOGIN" | grep -q '"role":"super_admin"'
           TOKEN=$(node -e 'console.log(JSON.parse(process.argv[1]).token)' "$LOGIN")
+          echo "token 长度: ${#TOKEN}"
 
           echo "— 会话校验"
-          SESSION=$(curl -fsS -b /tmp/cookies -H "Authorization: Bearer $TOKEN" "$BASE/auth/session")
-          echo "$SESSION" | grep -q '"mustChangePassword":false'
+          echo "cookie 名称: $(awk '!/^#/ && NF {print $6}' /tmp/cookies | tr '\n' ' ')"
+          SESSION_CODE=$(curl -s -o /tmp/session.json -w '%{http_code}' \
+            -b /tmp/cookies -H "Authorization: Bearer $TOKEN" "$BASE/auth/session")
+          echo "session status=$SESSION_CODE body=$(cat /tmp/session.json)"
+          test "$SESSION_CODE" = "200"
+          grep -q '"mustChangePassword":false' /tmp/session.json
           echo "首次设置与登录流程验证通过"
 
   build:
