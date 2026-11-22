@@ -42,12 +42,16 @@ function connectionOptions(connectionString: string): pg.PoolConfig {
   const originalHost = url.hostname
   if (!originalHost) return { connectionString }
 
-  // Remove sslmode from the URL so node-postgres cannot overwrite this explicit
-  // TLS object. Keep the original hostname for SNI and certificate validation.
-  url.searchParams.delete('sslmode')
+  // Do not pass connectionString together with host: pg-connection-string parses
+  // it later and overwrites host, causing a second DNS lookup. Expand every
+  // connection field explicitly, connect to the resolved IP, and preserve the
+  // original hostname only for SNI/certificate verification.
   return {
-    connectionString: url.toString(),
     host: resolvedIp,
+    port: url.port ? Number.parseInt(url.port, 10) : 5432,
+    user: decodeURIComponent(url.username),
+    password: decodeURIComponent(url.password),
+    database: decodeURIComponent(url.pathname.replace(/^\//, '')),
     ssl: {
       rejectUnauthorized: true,
       servername: originalHost,
