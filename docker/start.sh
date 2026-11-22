@@ -45,7 +45,12 @@ if [ -n "${DATABASE_URL:-}" ]; then
     echo "[start] $DBHOST 默认解析失败，等待 Altare 网络 DNS 100.100.100.100"
     attempt=1
     while [ "$attempt" -le 60 ]; do
-      LOOKUP=$(dig +time=3 +tries=1 +short @100.100.100.100 "$DBHOST" A 2>/dev/null || true)
+      # Docker 网络可能拦截 UDP/53，但团队 DNS 的 TCP/53 可用；先 TCP，
+      # 无结果再回退 UDP。只接受严格 IPv4，绝不把 dig 错误文本当地址。
+      LOOKUP=$(dig +tcp +time=3 +tries=1 +short @100.100.100.100 "$DBHOST" A 2>/dev/null || true)
+      if [ -z "$LOOKUP" ]; then
+        LOOKUP=$(dig +time=3 +tries=1 +short @100.100.100.100 "$DBHOST" A 2>/dev/null || true)
+      fi
       DATABASE_RESOLVED_IP=$(printf '%s\n' "$LOOKUP" | grep -E '^[0-9]{1,3}(\.[0-9]{1,3}){3}$' | tail -1 || true)
       if [ -n "${DATABASE_RESOLVED_IP:-}" ]; then
         export DATABASE_RESOLVED_IP
