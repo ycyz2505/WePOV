@@ -4,6 +4,24 @@ set -eu
 : "${PORT:=3000}"
 export PORT
 
+# Altare 的数据库域名只在平台内网 DNS 里存在。若容器没拿到该解析器，
+# getaddrinfo 会直接 ENOTFOUND；把团队 DNS 放到第一位再试一次。
+if [ -n "${DATABASE_URL:-}" ]; then
+  DBHOST=$(node -e "try{console.log(new URL(process.env.DATABASE_URL).hostname)}catch{process.exit(1)}" 2>/dev/null || true)
+  if [ -n "${DBHOST:-}" ] && ! getent hosts "$DBHOST" >/dev/null 2>&1; then
+    echo "[start] $DBHOST 解析失败，改用 Altare 网络 DNS 100.100.100.100"
+    { echo "nameserver 100.100.100.100"; cat /etc/resolv.conf; } > /tmp/resolv.conf.new 2>/dev/null || true
+    if [ -s /tmp/resolv.conf.new ]; then
+      cat /tmp/resolv.conf.new > /etc/resolv.conf
+    fi
+    if getent hosts "$DBHOST" >/dev/null 2>&1; then
+      echo "[start] 解析成功"
+    else
+      echo "[start] 仍然无法解析 $DBHOST"
+    fi
+  fi
+fi
+
 # 迁移是幂等的：多实例同时启动时由 advisory lock 串行化。
 if [ -n "${DATABASE_URL:-}" ]; then
   echo "[start] 执行数据库迁移"
