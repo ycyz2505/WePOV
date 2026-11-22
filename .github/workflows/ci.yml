@@ -76,6 +76,96 @@ jobs:
 
       - name: 数据库集成测试
         run: npm test --workspace @wepov/database
+
+  setup-flow:
+    name: 首次设置与登录流程
+    runs-on: ubuntu-24.04
+    services:
+      postgres:
+        image: postgres:17-alpine
+        env:
+          POSTGRES_USER: wepov
+          POSTGRES_PASSWORD: wepov
+          POSTGRES_DB: wepov_test
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U wepov"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      DATABASE_URL: postgres://wepov:wepov@localhost:5432/wepov_test
+      NODE_ENV: test
+      PORT: '3000'
+      PUBLIC_ORIGIN: http://127.0.0.1:3000
+      SESSION_PEPPER: ci-setup-pepper-0000000000000000
+      CLASS_GATEWAY_PEPPER: ci-setup-gateway-00000000000000
+      DATA_ENCRYPTION_KEY: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+      TREE_IDENTITY_HMAC_KEY: ci-setup-tree-000000000000000000
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - run: npm ci
+
+      - name: 执行迁移（不播种）
+        run: npm run db:migrate
+
+      - name: 启动 API 并验证首次设置、网关与登录
+        run: |
+          set -euo pipefail
+          npm start --workspace @wepov/api > /tmp/api.log 2>&1 &
+          API_PID=$!
+          trap 'code=$?; if [ "$code" -ne 0 ]; then echo "--- API 日志 ---" >&2; cat /tmp/api.log >&2; fi; kill "$API_PID" 2>/dev/null || true; exit "$code"' EXIT
+
+          for i in $(seq 1 60); do
+            if curl -fsS http://127.0.0.1:3000/health >/dev/null 2>&1; then break; fi
+            sleep 1
+          done
+          curl -fsS http://127.0.0.1:3000/health >/dev/null
+
+          BASE=http://127.0.0.1:3000/api/v1
+          PASSCODE=ci-passcode-1234
+          PASSWORD=ci-password-123
+          BODY='{"passcode":"ci-passcode-1234","realName":"测试管理员","nickname":"测试班长","password":"ci-password-123"}'
+
+          echo "— 空库应要求首次设置"
+          STATUS=$(curl -fsS "$BASE/setup/status")
+          echo "$STATUS"
+          echo "$STATUS" | grep -q '"initialized":false'
+
+          echo "— 初始化"
+          INIT=$(curl -fsS -X POST -H 'content-type: application/json' -d "$BODY" "$BASE/setup/initialize")
+          echo "$INIT"
+          echo "$INIT" | grep -q '"initialized":true'
+          ADMIN=$(node -e 'console.log(JSON.parse(process.argv[1]).superAdminId)' "$INIT")
+
+          echo "— 再次初始化必须 409"
+          CODE=$(curl -s -o /dev/null -w '%{http_code}' -X POST -H 'content-type: application/json' -d "$BODY" "$BASE/setup/initialize")
+          test "$CODE" = "409"
+
+          echo "— 口令网关"
+          VERIFY=$(curl -fsS -c /tmp/cookies -X POST -H 'content-type: application/json' \
+            -d "{\"passcode\":\"$PASSCODE\",\"rememberDevice\":false}" "$BASE/gateway/verify")
+          echo "$VERIFY" | grep -q '"verified":true'
+          curl -fsS -b /tmp/cookies "$BASE/gateway/members" | grep -q '测试班长'
+
+          echo "— 总管理员登录"
+          LOGIN=$(curl -fsS -X POST -H 'content-type: application/json' \
+            -d "{\"userId\":\"$ADMIN\",\"passwordInput\":\"$PASSWORD\",\"mode\":\"temporary\",\"deviceId\":\"ci-setup-device-0000001\",\"deviceName\":\"CI\"}" \
+            "$BASE/auth/login")
+          echo "$LOGIN" | grep -q '"role":"super_admin"'
+          TOKEN=$(node -e 'console.log(JSON.parse(process.argv[1]).token)' "$LOGIN")
+
+          echo "— 会话校验"
+          SESSION=$(curl -fsS -b /tmp/cookies -H "Authorization: Bearer $TOKEN" "$BASE/auth/session")
+          echo "$SESSION" | grep -q '"mustChangePassword":false'
+          echo "首次设置与登录流程验证通过"
+
   build:
     name: 构建 Web 与 API
     runs-on: ubuntu-24.04
