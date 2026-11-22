@@ -4,20 +4,19 @@ set -eu
 : "${PORT:=3000}"
 export PORT
 
-# Altare 的数据库域名只在平台内网 DNS 里存在。若容器没拿到该解析器，
-# getaddrinfo 会直接 ENOTFOUND；把团队 DNS 放到第一位再试一次。
+# Altare 的数据库域名只在平台内网 DNS 里存在。若容器默认 resolver
+# 没拿到该 zone，直接向团队 DNS 查询 A 记录并写入可写的 /etc/hosts；
+# /etc/resolv.conf 是只读挂载，不能替换。
 if [ -n "${DATABASE_URL:-}" ]; then
   DBHOST=$(node -e "try{console.log(new URL(process.env.DATABASE_URL).hostname)}catch{process.exit(1)}" 2>/dev/null || true)
   if [ -n "${DBHOST:-}" ] && ! getent hosts "$DBHOST" >/dev/null 2>&1; then
-    echo "[start] $DBHOST 解析失败，改用 Altare 网络 DNS 100.100.100.100"
-    { echo "nameserver 100.100.100.100"; cat /etc/resolv.conf; } > /tmp/resolv.conf.new 2>/dev/null || true
-    if [ -s /tmp/resolv.conf.new ]; then
-      cat /tmp/resolv.conf.new > /etc/resolv.conf
-    fi
-    if getent hosts "$DBHOST" >/dev/null 2>&1; then
-      echo "[start] 解析成功"
+    echo "[start] $DBHOST 默认解析失败，查询 Altare 网络 DNS 100.100.100.100"
+    DBIP=$(dig +short @100.100.100.100 "$DBHOST" A 2>/dev/null | tail -1 || true)
+    if [ -n "${DBIP:-}" ]; then
+      echo "$DBIP $DBHOST" >> /etc/hosts
+      echo "[start] 内网解析成功：$DBHOST"
     else
-      echo "[start] 仍然无法解析 $DBHOST"
+      echo "[start] Altare 网络 DNS 仍未返回 $DBHOST" >&2
     fi
   fi
 fi
