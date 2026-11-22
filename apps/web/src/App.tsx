@@ -133,6 +133,9 @@ function AppGates(): JSX.Element {
       <SetupScreen
         onDone={() => {
           setupRequired.value = false
+          // The setup screen verified the passcode it just chose; release the
+          // boot gate that was left pending while setup was required.
+          gatewayChecking.value = false
           void loadSession().catch(() => {
             /* no token yet; the login screen follows */
           })
