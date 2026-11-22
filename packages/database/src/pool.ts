@@ -8,6 +8,11 @@ const { Pool } = pg
  * Constraints come straight from the design (§15.3): at most 8 connections and
  * a ~2s statement_timeout so a runaway query cannot pin a worker on a 1.5 vCPU
  * box. A single pool is shared process-wide via getPool().
+ *
+ * Altare's managed Postgres hostname exists only in its split-horizon DNS. Some
+ * Docker hosts do not receive that resolver and mount `/etc/hosts` read-only.
+ * `DATABASE_RESOLVED_IP` lets start.sh supply the A record while we keep
+ * `DATABASE_URL`'s original hostname as TLS `servername` for certificate checks.
  */
 
 export type QueryParam = unknown
@@ -29,21 +34,41 @@ function resolveConnectionString(explicit?: string): string {
   return url
 }
 
+function connectionOptions(connectionString: string): pg.PoolConfig {
+  const resolvedIp = process.env['DATABASE_RESOLVED_IP']
+  if (!resolvedIp) return { connectionString }
+
+  const url = new URL(connectionString)
+  const originalHost = url.hostname
+  if (!originalHost) return { connectionString }
+
+  // Remove sslmode from the URL so node-postgres cannot overwrite this explicit
+  // TLS object. Keep the original hostname for SNI and certificate validation.
+  url.searchParams.delete('sslmode')
+  return {
+    connectionString: url.toString(),
+    host: resolvedIp,
+    ssl: {
+      rejectUnauthorized: true,
+      servername: originalHost,
+    },
+  }
+}
+
 export function createPool(options: PoolOptions = {}): pg.Pool {
   const max = options.max ?? 8
   const statementTimeoutMs = options.statementTimeoutMs ?? 2000
+  const connectionString = resolveConnectionString(options.connectionString)
   const created = new Pool({
-    connectionString: resolveConnectionString(options.connectionString),
+    ...connectionOptions(connectionString),
     max,
     idleTimeoutMillis: 10_000,
     connectionTimeoutMillis: 5_000,
     allowExitOnIdle: false,
     application_name: options.applicationName ?? 'wepov-api',
-    // Enforce the statement timeout at the session level for every connection.
     options: `-c statement_timeout=${statementTimeoutMs}`,
   })
   created.on('error', (err) => {
-    // A pool-level error means an idle client broke; surface it but keep going.
     console.error(JSON.stringify({ level: 'error', msg: 'pg_pool_error', error: err.message }))
   })
   return created

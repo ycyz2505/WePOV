@@ -5,16 +5,16 @@ set -eu
 export PORT
 
 # Altare 的数据库域名只在平台内网 DNS 里存在。若容器默认 resolver
-# 没拿到该 zone，直接向团队 DNS 查询 A 记录并写入可写的 /etc/hosts；
-# /etc/resolv.conf 是只读挂载，不能替换。
+# 没拿到该 zone，直接向团队 DNS 查询 A 记录，并通过环境变量交给 pg；
+# /etc/resolv.conf 和 /etc/hosts 都是只读挂载，不能修改。
 if [ -n "${DATABASE_URL:-}" ]; then
   DBHOST=$(node -e "try{console.log(new URL(process.env.DATABASE_URL).hostname)}catch{process.exit(1)}" 2>/dev/null || true)
   if [ -n "${DBHOST:-}" ] && ! getent hosts "$DBHOST" >/dev/null 2>&1; then
     echo "[start] $DBHOST 默认解析失败，查询 Altare 网络 DNS 100.100.100.100"
-    DBIP=$(dig +short @100.100.100.100 "$DBHOST" A 2>/dev/null | tail -1 || true)
-    if [ -n "${DBIP:-}" ]; then
-      echo "$DBIP $DBHOST" >> /etc/hosts
-      echo "[start] 内网解析成功：$DBHOST"
+    DATABASE_RESOLVED_IP=$(dig +short @100.100.100.100 "$DBHOST" A 2>/dev/null | tail -1 || true)
+    export DATABASE_RESOLVED_IP
+    if [ -n "${DATABASE_RESOLVED_IP:-}" ]; then
+      echo "[start] 内网 DNS 已返回数据库地址"
     else
       echo "[start] Altare 网络 DNS 仍未返回 $DBHOST" >&2
     fi
