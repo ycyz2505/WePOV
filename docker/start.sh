@@ -42,9 +42,14 @@ if [ -n "${DATABASE_URL:-}" ]; then
   DBHOST=$(node -e "try{console.log(new URL(process.env.DATABASE_URL).hostname)}catch{process.exit(1)}" 2>/dev/null || true)
   if [ -n "${DBHOST:-}" ] && ! getent hosts "$DBHOST" >/dev/null 2>&1; then
     start_wait_server
-    echo "[start] $DBHOST 默认解析失败，等待 Altare 网络 DNS 100.100.100.100"
+    echo "[start] $DBHOST 默认解析失败，等待 Altare 网络恢复（最多 30 分钟）"
     attempt=1
-    while [ "$attempt" -le 60 ]; do
+    while [ "$attempt" -le 360 ]; do
+      # 平台恢复后默认解析器通常先可用，此时不需要任何 IP 覆盖。
+      if getent hosts "$DBHOST" >/dev/null 2>&1; then
+        echo "[start] 默认解析器已恢复（第 $attempt 次）"
+        break
+      fi
       # Docker 网络可能拦截 UDP/53，但团队 DNS 的 TCP/53 可用；先 TCP，
       # 无结果再回退 UDP。只接受严格 IPv4，绝不把 dig 错误文本当地址。
       LOOKUP=$(dig +tcp +time=3 +tries=1 +short @100.100.100.100 "$DBHOST" A 2>/dev/null || true)
@@ -57,14 +62,14 @@ if [ -n "${DATABASE_URL:-}" ]; then
         echo "[start] 内网 DNS 已返回有效数据库地址（第 $attempt 次）"
         break
       fi
-      if [ "$attempt" -eq 1 ] || [ $((attempt % 10)) -eq 0 ]; then
-        echo "[start] 团队 DNS 暂未返回数据库地址（第 $attempt 次）"
+      if [ "$attempt" -eq 1 ] || [ $((attempt % 60)) -eq 0 ]; then
+        echo "[start] 仍在等待网络恢复（第 $attempt 次）"
       fi
       attempt=$((attempt + 1))
       sleep 5
     done
-    if [ -z "${DATABASE_RESOLVED_IP:-}" ]; then
-      echo "[start] 等待 5 分钟后仍无数据库 A 记录" >&2
+    if [ "$attempt" -gt 360 ] && ! getent hosts "$DBHOST" >/dev/null 2>&1; then
+      echo "[start] 等待 30 分钟后仍无法解析数据库" >&2
       stop_wait_server
       exit 1
     fi
