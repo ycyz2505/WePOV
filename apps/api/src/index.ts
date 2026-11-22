@@ -23,6 +23,7 @@ import { versionGatePlugin } from './plugins/version-gate.js'
 import { registerErrorHandler } from './plugins/error-handler.js'
 import { healthRoutes } from './routes/health.js'
 import { gatewayRoutes } from './routes/gateway.js'
+import { setupRoutes } from './routes/setup.js'
 import { authRoutes } from './routes/auth.js'
 import { sessionRoutes } from './routes/sessions.js'
 import { profileRoutes } from './routes/profiles.js'
@@ -178,6 +179,7 @@ async function main(): Promise<void> {
 
   await app.register(healthRoutes)
   await app.register(gatewayRoutes)
+  await app.register(setupRoutes)
   await app.register(authRoutes)
   await app.register(sessionRoutes)
   await app.register(profileRoutes)

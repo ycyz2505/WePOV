@@ -70,24 +70,20 @@ node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
 
 ## 4. 首次迁移与初始化
 
-容器启动时 `docker/start.sh` 会自动执行迁移（幂等，多实例由 advisory lock 串行化）。首次部署把 `BOOTSTRAP_SEED=1` 加进应用环境变量，启动时会自动建班并创建总管理员；`seed` 自身幂等，班级已存在时直接回滚。同时设置：
+容器启动时 `docker/start.sh` 会自动执行迁移（幂等，多实例由 advisory lock 串行化）。
 
-| 变量 | 说明 |
-|---|---|
-| `SEED_GATEWAY_PASSCODE` | 班级通行口令（首次启动写入） |
-| `SEED_SUPERADMIN_PASSWORD` | 总管理员初始密码，首次登录会强制修改 |
-| `SEED_SUPERADMIN_NICKNAME` | 默认「班长」 |
-| `SEED_SUPERADMIN_REALNAME` | 默认「总管理员」 |
+**生产环境不预置班级口令和总管理员密码。** 首次打开站点时，前端会显示「首次设置」页，由第一位访问者自行设置：
 
-初始化完成后移除 `BOOTSTRAP_SEED`，避免每次重启都执行种子脚本。
+- 班级口令（≥4 位，全班的准入口令）
+- 总管理员的真实姓名、昵称、登录密码（≥8 位）
 
-也可以在本机跑一次（会打印口令与初始密码）：
+初始化接口 `POST /api/v1/setup/initialize` 在事务内用 advisory lock 串行化，且只有在 `classes` 表为空时才能成功；第二次调用返回 409。因此部署完成后应尽快完成首次设置，避免被他人抢先。
+
+`SEED_*` 与 `BOOTSTRAP_SEED` 仅用于本地开发、CI 与演示环境：
 
 ```bash
-DATABASE_URL="<生产连接串>" SEED_GATEWAY_PASSCODE="<自定义班级口令>" npm run db:seed
+DATABASE_URL="<本地连接串>" SEED_GATEWAY_PASSCODE="<口令>" npm run db:seed
 ```
-
-生产连接串可用 `altr postgres url wepov` 查看（该命令会打印密码，注意终端历史）。
 
 ## 5. GitHub 配置
 

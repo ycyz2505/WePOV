@@ -7,6 +7,7 @@ import { initSessionLifecycle } from './lib/idle'
 import {
   authReady,
   checkGateway,
+  checkSetup,
   currentUser,
   gatewayChecking,
   gatewayVerified,
@@ -15,6 +16,8 @@ import {
   loadSession,
   registerVersionGate,
   sessionExpired,
+  setupChecking,
+  setupRequired,
   unreadCount,
 } from './lib/session'
 import { notificationApi } from './lib/api'
@@ -27,6 +30,7 @@ import { AppShell } from './components/AppShell'
 import { Button, StateBlock } from './components/ui'
 import { Viewfinder } from './components/Viewfinder'
 import { GatewayScreen } from './features/gateway/GatewayScreen'
+import { SetupScreen } from './features/setup/SetupScreen'
 import { LoginScreen } from './features/auth/LoginScreen'
 import { ForcedPasswordChange } from './features/auth/ForcedPasswordChange'
 import { ClassroomPage } from './features/classroom/ClassroomPage'
@@ -61,6 +65,9 @@ export function App(): JSX.Element {
   useEffect(() => {
     const cleanups = [initRouter(), initNetworkWatch(), initSessionLifecycle()]
     void (async () => {
+      // A brand-new deployment has no class yet: the first visitor sets it up.
+      const needsSetup = await checkSetup()
+      if (needsSetup) return
       const verified = await checkGateway()
       if (verified) {
         await loadSession().catch(() => {
@@ -116,6 +123,24 @@ export function App(): JSX.Element {
 }
 
 function AppGates(): JSX.Element {
+  // First run: no class exists yet, so the first visitor chooses the passcode
+  // and the super administrator password here.
+  if (setupChecking.value) {
+    return <BootSplash />
+  }
+  if (setupRequired.value) {
+    return (
+      <SetupScreen
+        onDone={() => {
+          setupRequired.value = false
+          void loadSession().catch(() => {
+            /* no token yet; the login screen follows */
+          })
+        }}
+      />
+    )
+  }
+
   // Privacy gateway: nothing but the passcode screen until verified.
   if (gatewayChecking.value) {
     return <BootSplash />

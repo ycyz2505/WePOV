@@ -20,6 +20,7 @@ const PUBLIC_PATTERNS: RegExp[] = [
   /^\/ready$/,
   /^\/api\/v1\/app\/update-manifest$/,
   /^\/api\/v1\/gateway\//,
+  /^\/api\/v1\/setup\//,
   /^\/api\/v1\/auth\/login$/,
   /^\/api\/v1\/auth\/refresh$/,
 ]

@@ -7,7 +7,7 @@ import type {
   SessionMode,
   SessionUser,
 } from './types'
-import { ApiError, authApi, configureApi, gatewayApi } from './api'
+import { ApiError, authApi, configureApi, gatewayApi, setupApi } from './api'
 import { getDeviceId, getDeviceName } from './device'
 
 const TOKEN_KEY = 'wepov.token'
@@ -49,6 +49,9 @@ let memoryToken: string | null = readToken()
 
 export const gatewayVerified = signal<boolean>(false)
 export const gatewayChecking = signal<boolean>(true)
+/** True while the deployment has no class yet: show first-run setup. */
+export const setupRequired = signal<boolean>(false)
+export const setupChecking = signal<boolean>(true)
 export const currentUser = signal<SessionUser | null>(null)
 export const sessionMode = signal<SessionMode>('temporary')
 export const idleTimeoutMinutes = signal<number>(10)
@@ -130,6 +133,24 @@ export async function checkGateway(): Promise<boolean> {
     return false
   } finally {
     gatewayChecking.value = false
+  }
+}
+
+/**
+ * Probe whether this deployment has been initialised. A failed probe must not
+ * block the gateway screen: the server will still answer a passcode attempt.
+ */
+export async function checkSetup(): Promise<boolean> {
+  setupChecking.value = true
+  try {
+    const status = await setupApi.status()
+    setupRequired.value = !status.initialized
+    return setupRequired.value
+  } catch {
+    setupRequired.value = false
+    return false
+  } finally {
+    setupChecking.value = false
   }
 }
 

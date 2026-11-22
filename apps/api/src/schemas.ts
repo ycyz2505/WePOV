@@ -12,6 +12,14 @@ export const gatewayVerifySchema = z.object({
   rememberDevice: z.boolean().default(false),
 })
 
+/** First-run setup: whoever initialises the deployment chooses both secrets. */
+export const setupInitializeSchema = z.object({
+  passcode: z.string().min(4).max(128),
+  realName: z.string().trim().min(1).max(30),
+  nickname: z.string().trim().min(1).max(12),
+  password: z.string().min(8).max(64),
+})
+
 export const loginSchema = z.object({
   userId: z.string().uuid(),
   passwordInput: z.string().min(1).max(256),

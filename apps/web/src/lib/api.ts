@@ -209,6 +209,19 @@ export const gatewayApi = {
   members: (): Promise<{ items: GatewayMember[] }> => request('/gateway/members', { skipAuth: true }),
 }
 
+/* ─────────────────────────── First-run setup ─────────────────────────── */
+
+export const setupApi = {
+  status: (): Promise<{ initialized: boolean }> => request('/setup/status', { skipAuth: true }),
+  initialize: (payload: {
+    passcode: string
+    realName: string
+    nickname: string
+    password: string
+  }): Promise<{ initialized: boolean; classId: string; superAdminId: string }> =>
+    request('/setup/initialize', { method: 'POST', body: payload, skipAuth: true }),
+}
+
 /* ─────────────────────────── Auth ─────────────────────────── */
 
 export const authApi = {
