@@ -106,7 +106,14 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
       accessKeyId: str(env, 'U3_ACCESS_KEY_ID', ''),
       secretAccessKey: str(env, 'U3_SECRET_ACCESS_KEY', ''),
       forcePathStyle: bool(env, 'U3_FORCE_PATH_STYLE', true),
-      mediaBucket: str(env, 'U3_MEDIA_BUCKET', 'wepov-media'),
+      // `altr <u3> attach` injects a single U3_BUCKET; the media bucket is the
+      // attached one, the other two are named explicitly.
+      mediaBucket:
+        env['U3_MEDIA_BUCKET'] && env['U3_MEDIA_BUCKET'].length > 0
+          ? env['U3_MEDIA_BUCKET']
+          : env['U3_BUCKET'] && env['U3_BUCKET'].length > 0
+            ? env['U3_BUCKET']
+            : 'wepov-media',
       logBucket: str(env, 'U3_LOG_BUCKET', 'wepov-logs'),
       exportBucket: str(env, 'U3_EXPORT_BUCKET', 'wepov-export'),
       presignExpirySeconds: int(env, 'U3_PRESIGN_EXPIRY_SECONDS', 900),
