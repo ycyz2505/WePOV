@@ -20,6 +20,7 @@ import { rateLimitPlugin } from './plugins/rate-limit.js'
 import { gatewayPlugin } from './plugins/gateway.js'
 import { authPlugin } from './plugins/auth.js'
 import { versionGatePlugin } from './plugins/version-gate.js'
+import { startRetentionJob } from './lib/retention-scheduler.js'
 import { registerErrorHandler } from './plugins/error-handler.js'
 import { healthRoutes } from './routes/health.js'
 import { gatewayRoutes } from './routes/gateway.js'
@@ -210,10 +211,13 @@ async function main(): Promise<void> {
   await app.listen({ port: config.port, host: config.host })
   app.log.info({ port: config.port, env: config.nodeEnv }, 'WePOV 已启动')
 
+  const stopRetention = startRetentionJob(app)
+
   let closing = false
   const shutdown = (signal: string): void => {
     if (closing) return
     closing = true
+    stopRetention()
     app.log.info({ signal }, '正在关闭')
     void app
       .close()

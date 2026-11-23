@@ -45,6 +45,9 @@ export interface AppConfig {
   bodyLimitBytes: number
   logLevel: string
   mediaQuotaBytesDefault: number
+  /** Retention windows for the log tables (see lib/retention.ts). */
+  logRetentionHttpDays: number
+  logRetentionSemanticDays: number
 }
 
 function str(env: NodeJS.ProcessEnv, name: string, fallback?: string): string {
@@ -134,5 +137,7 @@ export function loadConfig(env: NodeJS.ProcessEnv = process.env): AppConfig {
     bodyLimitBytes: int(env, 'BODY_LIMIT_BYTES', 1024 * 1024),
     logLevel: str(env, 'LOG_LEVEL', 'info'),
     mediaQuotaBytesDefault: int(env, 'MEDIA_QUOTA_BYTES', 9_878_424_780),
+    logRetentionHttpDays: int(env, 'LOG_RETENTION_HTTP_DAYS', 60),
+    logRetentionSemanticDays: int(env, 'LOG_RETENTION_SEMANTIC_DAYS', 90),
   }
 }

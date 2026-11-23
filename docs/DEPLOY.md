@@ -55,12 +55,16 @@ altr domains add <app> wepov
 | `MIN_APP_VERSION_CODE` | 服务端版本门禁，默认 0（网页不受影响） |
 | `BODY_LIMIT_BYTES` | 请求体上限，默认 1 MiB |
 | `MEDIA_QUOTA_BYTES` | 全班媒体总配额，默认约 9.2 GiB |
+| `LOG_RETENTION_HTTP_DAYS` | HTTP 请求索引保留天数，默认 60 |
+| `LOG_RETENTION_SEMANTIC_DAYS` | 语义事件保留天数，默认 90 |
 | `LOG_LEVEL` | 默认 `info`，生产不要设 `debug` |
 | `U3_FORCE_PATH_STYLE` | 默认 `true` |
 | `U3_PRESIGN_EXPIRY_SECONDS` | 预签名有效期，默认 900 |
 | `TRUSTED_PROXY_HOPS` | 仅在能确认代理可信时大于 0 |
 
 `PASSWORD_MATCH_KEY`、`ABUSE_HMAC_KEY`、`LOG_IP_HMAC_KEY` 留空时会由 `SESSION_PEPPER` 经 HKDF 派生；分别独立设置可以让单个密钥泄露的影响面更小。
+
+日志保留由进程内任务负责：启动 1 分钟后执行一次，之后每 24 小时一次，删除超过保留期的 `request_log_index`、`request_log_staging` 与 `semantic_events`。每次清理的删除条数记录在 `log_retention_done` 日志里。这是把数据库长期控制在 1 GB 以内的关键。
 
 生成随机值（本机一次性执行，不要提交）：
 
