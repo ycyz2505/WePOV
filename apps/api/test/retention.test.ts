@@ -8,7 +8,7 @@ import {
 } from '../src/lib/retention.js'
 
 function recorder(rowCount: number | null = 2) {
-  const calls: Array<{ sql: string; params?: unknown[] }> = []
+  const calls: Array<{ sql: string; params?: unknown[] | undefined }> = []
   return {
     calls,
     query: async (sql: string, params?: unknown[]): Promise<{ rowCount: number | null }> => {
